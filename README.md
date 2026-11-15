@@ -6,6 +6,12 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/cubicpill/china_southern_power_grid_stat)](https://github.com/CubicPill/china_southern_power_grid_stat/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+## 关于本仓库
+
+这是 [CubicPill/china_southern_power_grid_stat](https://github.com/CubicPill/china_southern_power_grid_stat) 的 fork，仅做兼容性修复：
+
+- 修复新版 Home Assistant 中 `OptionsFlow.config_entry` 变为只读属性导致的崩溃（打开「配置」时报 `AttributeError: property 'config_entry' of 'CSGOptionsFlowHandler' object has no setter`），改为私有字段 + 只读属性
+
 ## 支持功能
 
 - ✅支持南方电网覆盖范围内的电费数据查询（广东、广西、云南、贵州、海南）
