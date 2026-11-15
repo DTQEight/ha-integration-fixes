@@ -12,6 +12,38 @@
 
 - 修复新版 Home Assistant 中 `OptionsFlow.config_entry` 变为只读属性导致的崩溃（打开「配置」时报 `AttributeError: property 'config_entry' of 'CSGOptionsFlowHandler' object has no setter`），改为私有字段 + 只读属性
 
+## 附带的仪表盘
+
+`dashboards/csg-dashboard.yaml` 是一套现成的「用电」仪表盘，用 HA 内置卡片（tile / sections / history-graph / markdown）搭成，不依赖任何 HACS 前端组件：
+
+- 渐变头部：余额、欠费、本月用电与电费
+- 本月：本月用电/电费、昨日用电、最近日用电/电费
+- 阶梯电量：当前档位、剩余电量、电价
+- 月度与年度对比：上月、今年、去年
+- 近 7 天用电趋势图
+
+启用方法：
+
+1. 把 `csg-dashboard.yaml` 放到 HA 配置目录（与 `configuration.yaml` 同级）
+2. 在 `configuration.yaml` 追加：
+
+```yaml
+lovelace:
+  mode: storage
+  dashboards:
+    csg-power:
+      mode: yaml
+      title: 用电
+      icon: mdi:lightning-bolt
+      show_in_sidebar: true
+      require_admin: false
+      filename: csg-dashboard.yaml
+```
+
+3. 重启 HA，访问 `/csg-power`
+
+> 实体 ID 形如 `sensor.csgaccount_<账号>_<缴费号>_balance`，请把文件里的 `csgaccount` 前缀替换成你自己的。想让 HA 首页直接显示这个仪表盘：左下角头像 → 仪表盘 → 默认仪表盘 → 选「用电」。
+
 ## 支持功能
 
 - ✅支持南方电网覆盖范围内的电费数据查询（广东、广西、云南、贵州、海南）

@@ -1,0 +1,148 @@
+title: 用电
+views:
+  - title: 电费
+    path: main
+    icon: mdi:lightning-bolt
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        cards:
+          - type: markdown
+            content: |
+              <div style="padding:20px 22px;border-radius:18px;background:linear-gradient(135deg,#0b4f6c 0%,#1b7fa8 55%,#2ea8c9 100%);color:#fff;box-shadow:0 6px 18px rgba(11,79,108,.25)">
+                <div style="font-size:11px;letter-spacing:3px;opacity:.75">CHINA SOUTHERN POWER GRID</div>
+                <div style="font-size:26px;font-weight:700;margin-top:6px;line-height:1.2">￥{{ states('sensor.csgaccount_0306130240952594_0306130240952594_balance') }}</div>
+                <div style="font-size:12px;opacity:.85;margin-top:2px">账户余额</div>
+                <div style="display:flex;gap:26px;margin-top:16px;font-size:13px">
+                  <div>
+                    <div style="opacity:.7;font-size:11px">欠费</div>
+                    <div style="font-weight:600;font-size:16px">￥{{ states('sensor.csgaccount_0306130240952594_0306130240952594_arrears') }}</div>
+                  </div>
+                  <div>
+                    <div style="opacity:.7;font-size:11px">本月用电</div>
+                    <div style="font-weight:600;font-size:16px">{{ states('sensor.csgaccount_0306130240952594_0306130240952594_this_month_total_usage') }} kWh</div>
+                  </div>
+                  <div>
+                    <div style="opacity:.7;font-size:11px">本月电费</div>
+                    <div style="font-weight:600;font-size:16px">￥{{ states('sensor.csgaccount_0306130240952594_0306130240952594_this_month_total_cost') }}</div>
+                  </div>
+                </div>
+                <div style="font-size:10px;opacity:.6;margin-top:14px">账号 0306130240952594 · 数据每 4 小时更新</div>
+              </div>
+      - type: grid
+        cards:
+          - type: heading
+            heading: 本月
+            icon: mdi:calendar-month
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_this_month_total_usage
+            name: 本月用电
+            icon: mdi:lightning-bolt
+            color: amber
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_this_month_total_cost
+            name: 本月电费
+            icon: mdi:currency-cny
+            color: deep-orange
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_yesterday_kwh
+            name: 昨日用电
+            icon: mdi:history
+            color: blue
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_latest_day_kwh
+            name: 最近日用电
+            icon: mdi:calendar-today
+            color: teal
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_latest_day_cost
+            name: 最近日电费
+            icon: mdi:cash
+            color: green
+            vertical: true
+      - type: grid
+        cards:
+          - type: heading
+            heading: 阶梯电量
+            icon: mdi:stairs
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_current_ladder
+            name: 当前档位
+            icon: mdi:format-list-numbered
+            color: purple
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_current_ladder_remaining_kwh
+            name: 阶梯剩余电量
+            icon: mdi:battery-medium
+            color: cyan
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_current_ladder_tariff
+            name: 阶梯电价
+            icon: mdi:tag
+            color: indigo
+            vertical: true
+      - type: grid
+        cards:
+          - type: heading
+            heading: 月度与年度对比
+            icon: mdi:chart-bar
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_last_month_total_usage
+            name: 上月用电
+            icon: mdi:calendar-arrow-left
+            color: brown
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_last_month_total_cost
+            name: 上月电费
+            icon: mdi:currency-cny
+            color: brown
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_this_year_total_usage
+            name: 今年用电
+            icon: mdi:calendar-range
+            color: light-blue
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_this_year_total_cost
+            name: 今年电费
+            icon: mdi:currency-cny
+            color: light-blue
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_last_year_total_usage
+            name: 去年用电
+            icon: mdi:calendar-clock
+            color: grey
+            vertical: true
+          - type: tile
+            entity: sensor.csgaccount_0306130240952594_0306130240952594_last_year_total_cost
+            name: 去年电费
+            icon: mdi:currency-cny
+            color: grey
+            vertical: true
+      - type: grid
+        cards:
+          - type: heading
+            heading: 用电趋势
+            icon: mdi:chart-line
+          - type: history-graph
+            hours_to_show: 168
+            entities:
+              - entity: sensor.csgaccount_0306130240952594_0306130240952594_latest_day_kwh
+                name: 每日用电
+          - type: markdown
+            content: |
+              <div style="font-size:12px;line-height:1.8;opacity:.75">
+              · 数据来源：南方电网（南网在线），每 4 小时同步一次<br>
+              · 「本月/上月」明细由南网日历接口提供，通常有 1~2 天延迟<br>
+              · 阶梯档位、电价为当前阶梯快照，不做电费计算
+              </div>
