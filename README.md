@@ -8,6 +8,7 @@
 |---|---|---|
 | [`custom_components/china_southern_power_grid_stat`](custom_components/china_southern_power_grid_stat) | 完整集成 | 南方电网电费集成，修复新版 HA 打开「配置」时的 `OptionsFlow` 崩溃 |
 | [`patches/midea_ac_lan`](patches/midea_ac_lan) | 补丁 | 美的空调（Midea AC LAN）局域网发现地址被路由器改写成网关，导致添加设备失败 |
+| [`docs/bemfa-cloud-sync.md`](docs/bemfa-cloud-sync.md) | 配置说明 | HA 设备同步到巴法云（Bemfa Cloud），再由米家/小爱同学语音控制 |
 | [`dashboards/csg-dashboard.yaml`](dashboards/csg-dashboard.yaml) | 仪表盘 | 用电仪表盘，纯内置卡片，无前端依赖 |
 
 安装方式：完整集成直接复制 `custom_components/<集成>` 到 HA 的 `config/custom_components/`；补丁按各自目录里的说明应用。
@@ -206,6 +207,14 @@ connect device 210006722454675(192.168.31.1:6444) using method 2 token/key faile
 `192.168.31.1` 是路由器，不是空调，所以连接必然失败；失败后插件回退到内置的共享账号（预置账号）取 token，而预置账号早已失效，于是报出上面那句误导性的错误。
 
 **修复**：发现完成后按 MAC 从 `/proc/net/arp` 反查真实 IP，替换被改写过的地址。补丁见 [`patches/midea_ac_lan/discovery_arp_fix.patch`](patches/midea_ac_lan/discovery_arp_fix.patch)，应用说明见[该目录文档](patches/midea_ac_lan)。
+
+## 3. HA 设备同步到巴法云（小爱同学语音控制）
+
+把 HA 里的美的空调、抽油烟机等实体推到巴法云，再由米家绑定巴法、小爱语音控制。用的是官方自定义集成 **Bemfa Cloud**（`bemfa/bemfa_cloud_ha`，domain `bemfa_cloud`，方向 HA → 巴法云）。
+
+前提是先搞清方向：`behome` 是巴法云 → HA，`bemfa_cloud` 才是 HA → 巴法云，两者可共存且不会回环。
+
+完整步骤、topic 生成规则、重复设备迁移和限制说明见 [`docs/bemfa-cloud-sync.md`](docs/bemfa-cloud-sync.md)。
 
 ## Thank you
 - [lyylyylyylyy](https://github.com/lyylyylyylyy): PR [#30](https://github.com/CubicPill/china_southern_power_grid_stat/pull/30) 短信验证码登录支持
