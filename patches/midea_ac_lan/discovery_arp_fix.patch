@@ -1,0 +1,62 @@
+--- a/custom_components/midea_ac_lan/config_flow.py
++++ b/custom_components/midea_ac_lan/config_flow.py
+@@ -104,6 +104,43 @@
+ 
+ STORAGE_PATH = f".storage/{DOMAIN}"
+ 
++
++def _arp_lookup(mac: str | None) -> str | None:
++    """Resolve a MAC address to its IP using the kernel ARP table."""
++    if not mac:
++        return None
++    mac = mac.lower().replace(":", "")
++    try:
++        with open("/proc/net/arp", encoding="utf-8") as arp_file:
++            next(arp_file, None)
++            for line in arp_file:
++                parts = line.split()
++                if len(parts) >= 4 and parts[3].lower().replace(":", "") == mac:
++                    return parts[0]
++    except OSError:
++        return None
++    return None
++
++
++def _apply_arp_addresses(devices: dict[Any, dict[str, Any]]) -> None:
++    """Fix discovery results whose IP was rewritten by router NAT.
++
++    Some routers relay the UDP broadcast and report the gateway address, so the
++    discovered IP cannot be connected. The real address is taken from the ARP
++    table by MAC when it differs.
++    """
++    for device in devices.values():
++        arp_ip = _arp_lookup(device.get("mac"))
++        if arp_ip and arp_ip != device.get("ip_address"):
++            _LOGGER.debug(
++                "Device %s discovered at %s, using ARP address %s",
++                device.get("device_id"),
++                device.get("ip_address"),
++                arp_ip,
++            )
++            device["ip_address"] = arp_ip
++
++
+ SKIP_LOGIN = "Skip Login (input any user/password)"
+ 
+ 
+@@ -433,6 +470,7 @@
+             self.devices = await self.hass.async_add_executor_job(
+                 lambda: discover(list(self.supports.keys()), ip_address=ip_address),
+             )
++            _apply_arp_addresses(self.devices)
+             self.available_device = {}
+             for device_id, device in self.devices.items():
+                 # TLS devices (udp_version >= 4) can't expose their SN on the
+@@ -763,6 +801,7 @@
+                 self.devices = await self.hass.async_add_executor_job(
+                     lambda: discover(list(self.supports.keys()), ip_address=ip),
+                 )
++                _apply_arp_addresses(self.devices)
+                 # discover result MUST exist
+                 if len(self.devices) != 1:
+                     return await self.async_step_manually(error="invalid_device_ip")

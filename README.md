@@ -1,18 +1,34 @@
-# China Southern Power Grid Statistics
+# 自用 Home Assistant 集成修复
 
-# 南方电网电费数据HA集成
+个人在真实环境里踩到、并且验证过修复效果的 HA 相关补丁合集。每条都写清楚**现象 → 根因 → 改了什么**，方便以后对照版本回查。
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/cubicpill/china_southern_power_grid_stat)](https://github.com/CubicPill/china_southern_power_grid_stat/releases)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+## 收录内容
 
-## 关于本仓库
+| 目录 | 类型 | 内容 |
+|---|---|---|
+| [`custom_components/china_southern_power_grid_stat`](custom_components/china_southern_power_grid_stat) | 完整集成 | 南方电网电费集成，修复新版 HA 打开「配置」时的 `OptionsFlow` 崩溃 |
+| [`patches/midea_ac_lan`](patches/midea_ac_lan) | 补丁 | 美的空调（Midea AC LAN）局域网发现地址被路由器改写成网关，导致添加设备失败 |
+| [`dashboards/csg-dashboard.yaml`](dashboards/csg-dashboard.yaml) | 仪表盘 | 用电仪表盘，纯内置卡片，无前端依赖 |
 
-这是 [CubicPill/china_southern_power_grid_stat](https://github.com/CubicPill/china_southern_power_grid_stat) 的 fork，仅做兼容性修复：
+安装方式：完整集成直接复制 `custom_components/<集成>` 到 HA 的 `config/custom_components/`；补丁按各自目录里的说明应用。
 
-- 修复新版 Home Assistant 中 `OptionsFlow.config_entry` 变为只读属性导致的崩溃（打开「配置」时报 `AttributeError: property 'config_entry' of 'CSGOptionsFlowHandler' object has no setter`），改为私有字段 + 只读属性
+---
 
-## 附带的仪表盘
+## 1. 南方电网电费集成
+
+基于 [CubicPill/china_southern_power_grid_stat](https://github.com/CubicPill/china_southern_power_grid_stat) 的 fork，改动只有一处兼容性修复：
+
+- 新版 Home Assistant 中 `OptionsFlow.config_entry` 变成只读属性，原代码 `self.config_entry = config_entry` 会抛
+  `AttributeError: property 'config_entry' of 'CSGOptionsFlowHandler' object has no setter`，
+  导致点「配置」直接报错。改为私有字段 + 只读属性。
+
+复制安装：
+
+```bash
+cp -r custom_components/china_southern_power_grid_stat /path/to/config/custom_components/
+```
+
+### 附带的仪表盘
 
 `dashboards/csg-dashboard.yaml` 是一套现成的「用电」仪表盘，用 HA 内置卡片（tile / sections / history-graph / markdown）搭成，不依赖任何 HACS 前端组件：
 
@@ -73,7 +89,7 @@ lovelace:
 ❌因为南网登录API调整，不再支持登录态失效之后自动重新登录，需要手动重新登录。
 ## 使用方法
 
-使用[HACS](https://hacs.xyz/)或[手动下载安装](https://github.com/CubicPill/china_southern_power_grid_stat/releases)
+使用[HACS](https://hacs.xyz/)添加本仓库（自定义仓库），或直接复制 `custom_components/china_southern_power_grid_stat` 到 HA 的配置目录。
 
 注意：本集成需求`Home Assistant`最低版本为`2022.11`。
 
@@ -173,6 +189,23 @@ lovelace:
 本项目代码中的[`csg_client/__init__.py`](https://github.com/CubicPill/china_southern_power_grid_stat/blob/master/custom_components/china_southern_power_grid_stat/csg_client/__init__.py)
 是对南网在线 App API 的实现，可以独立于此项目单独使用。
 详细使用方法见`csg_client_demo.py`
+
+## 2. 美的空调局域网发现地址修复
+
+**现象**：集成能发现设备、云端登录也成功、token/key 正常返回，但添加时报 `Preset account login failed!`。
+
+**根因**：部分路由器会中继/NAT 美的设备的 UDP 广播，导致发现的地址变成网关地址：
+
+```
+Cloud login success, account 17817******
+Token and key for device 210006722454675 returned by cloud
+connect device 210006722454675(192.168.31.1:6444) using method 1 token/key failed
+connect device 210006722454675(192.168.31.1:6444) using method 2 token/key failed
+```
+
+`192.168.31.1` 是路由器，不是空调，所以连接必然失败；失败后插件回退到内置的共享账号（预置账号）取 token，而预置账号早已失效，于是报出上面那句误导性的错误。
+
+**修复**：发现完成后按 MAC 从 `/proc/net/arp` 反查真实 IP，替换被改写过的地址。补丁见 [`patches/midea_ac_lan/discovery_arp_fix.patch`](patches/midea_ac_lan/discovery_arp_fix.patch)，应用说明见[该目录文档](patches/midea_ac_lan)。
 
 ## Thank you
 - [lyylyylyylyy](https://github.com/lyylyylyylyy): PR [#30](https://github.com/CubicPill/china_southern_power_grid_stat/pull/30) 短信验证码登录支持
