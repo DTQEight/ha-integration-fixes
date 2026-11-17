@@ -23,6 +23,11 @@ const STATS = [
   { entity: "sensor.csgaccount_0306130240952594_0306130240952594_yesterday_kwh", label: "昨日用电", unit: "kWh", icon: "mdi:chart-bar", path: "/csg-power" },
 ];
 
+const TREND = {
+  usage: "sensor.csgaccount_0306130240952594_0306130240952594_this_month_total_usage",
+  prev: "sensor.csgaccount_0306130240952594_0306130240952594_last_month_total_usage",
+};
+
 const WATER = [
   { entity: "sensor.210006722454684_out_tds", label: "纯水 TDS", unit: "ppm", min: 0, max: 300, good: 60, icon: "mdi:water-check" },
   { entity: "sensor.210006722454684_life1", label: "PCB 滤芯", unit: "%", min: 0, max: 100, good: 40, icon: "mdi:filter" },
@@ -133,6 +138,29 @@ const CSS = `
   .stat .val { margin-top: 7px; font-size: 24px; font-weight: 600; color: #f0f9ff; letter-spacing: .02em; }
   .stat .val i { font-style: normal; font-size: 11px; color: var(--muted); margin-left: 4px; letter-spacing: .1em; }
 
+  .trend {
+    margin-top: 12px; padding: 12px 14px 10px; border-radius: 12px;
+    background: var(--panel); border: 1px solid var(--line);
+  }
+  .trend-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .trend-head .t { font-size: 10px; letter-spacing: .22em; color: var(--muted); }
+  .trend-head .v b { font-size: 17px; font-weight: 600; color: #f0f9ff; }
+  .trend-head .v i { font-style: normal; font-size: 9px; letter-spacing: .12em; color: var(--muted); margin-left: 5px; }
+  .chart { margin-top: 10px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 104px; }
+  .col { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; height: 100%; cursor: pointer; }
+  .col .bar {
+    width: 100%; max-width: 46px; min-height: 2px; border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, rgba(34, 211, 238, .85), rgba(14, 116, 144, .25));
+    box-shadow: 0 0 10px rgba(34, 211, 238, .2);
+    transition: height .35s ease, background .2s ease;
+  }
+  .col:hover .bar { background: linear-gradient(180deg, #67e8f9, rgba(34, 211, 238, .5)); }
+  .col .num { font-size: 9px; color: #cfe8ff; }
+  .col .day { font-size: 9px; letter-spacing: .08em; color: var(--muted); }
+  .col.today .bar { background: linear-gradient(180deg, #fbbf24, rgba(251, 191, 36, .25)); box-shadow: 0 0 12px rgba(251, 191, 36, .3); }
+  .col.today .day { color: var(--amber); }
+  .chart .empty { grid-column: 1 / -1; align-self: center; text-align: center; font-size: 9px; letter-spacing: .22em; color: var(--muted); }
+
   .sect { margin-top: 18px; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 10px; letter-spacing: .24em; }
   .sect::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
 
@@ -193,46 +221,46 @@ const CSS = `
   .mi-tile.on .pwr { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
   .mi-tile.on { border-color: rgba(34, 211, 238, .38); background: linear-gradient(150deg, rgba(34, 211, 238, .1), rgba(13, 22, 38, .72)); }
 
-  .cam { margin-top: 10px; display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; }
+  .cam { margin-top: 10px; display: grid; grid-template-columns: 300px 1fr; gap: 12px; align-items: start; }
   .cam-frame {
-    position: relative; min-height: 200px; border-radius: 14px; overflow: hidden;
+    position: relative; width: 100%; border-radius: 12px; overflow: hidden;
     border: 1px solid var(--line); background: #02060c;
-    box-shadow: inset 0 0 40px rgba(8, 145, 178, .12);
+    box-shadow: inset 0 0 30px rgba(8, 145, 178, .12);
   }
   .cam-body { display: block; --ha-card-border-width: 0; --ha-card-box-shadow: none; --ha-card-border-radius: 0; }
   .cam-body hui-picture-entity-card { display: block; }
   .cam-frame.off .cam-body { filter: grayscale(1) brightness(.5); }
-  .cam-fallback { display: grid; place-items: center; min-height: 200px; color: var(--muted); font-size: 10px; letter-spacing: .22em; }
-  .cam-hud { position: absolute; inset: 0; pointer-events: none; z-index: 2; font-size: 9px; letter-spacing: .18em; }
+  .cam-fallback { display: grid; place-items: center; min-height: 168px; color: var(--muted); font-size: 10px; letter-spacing: .22em; }
+  .cam-hud { position: absolute; inset: 0; pointer-events: none; z-index: 2; font-size: 8px; letter-spacing: .16em; }
   .cam-hud .tag {
-    position: absolute; left: 10px; top: 10px; padding: 4px 8px; border-radius: 6px; color: var(--cyan);
+    position: absolute; left: 8px; top: 8px; padding: 3px 7px; border-radius: 5px; color: var(--cyan);
     background: rgba(2, 6, 12, .65); border: 1px solid rgba(34, 211, 238, .45); backdrop-filter: blur(4px);
   }
   .cam-hud .rec {
-    position: absolute; right: 10px; top: 10px; display: flex; align-items: center; gap: 6px;
-    padding: 4px 8px; border-radius: 6px; color: var(--red);
+    position: absolute; right: 8px; top: 8px; display: flex; align-items: center; gap: 5px;
+    padding: 3px 7px; border-radius: 5px; color: var(--red);
     background: rgba(2, 6, 12, .65); border: 1px solid rgba(248, 113, 113, .4); backdrop-filter: blur(4px);
   }
-  .cam-hud .rec i { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); animation: pulse 1.6s infinite; }
-  .cam-hud .meter { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 10px; color: var(--muted); }
-  .cam-hud .corner { position: absolute; width: 14px; height: 14px; border: 1px solid rgba(34, 211, 238, .55); }
-  .cam-hud .tl { left: 6px; top: 6px; border-right: 0; border-bottom: 0; border-radius: 4px 0 0 0; }
-  .cam-hud .tr { right: 6px; top: 6px; border-left: 0; border-bottom: 0; border-radius: 0 4px 0 0; }
-  .cam-hud .bl { left: 6px; bottom: 6px; border-right: 0; border-top: 0; border-radius: 0 0 0 4px; }
-  .cam-hud .br { right: 6px; bottom: 6px; border-left: 0; border-top: 0; border-radius: 0 0 4px 0; }
+  .cam-hud .rec i { width: 5px; height: 5px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); animation: pulse 1.6s infinite; }
+  .cam-hud .meter { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 8px; color: var(--muted); }
+  .cam-hud .corner { position: absolute; width: 11px; height: 11px; border: 1px solid rgba(34, 211, 238, .55); }
+  .cam-hud .tl { left: 5px; top: 5px; border-right: 0; border-bottom: 0; border-radius: 3px 0 0 0; }
+  .cam-hud .tr { right: 5px; top: 5px; border-left: 0; border-bottom: 0; border-radius: 0 3px 0 0; }
+  .cam-hud .bl { left: 5px; bottom: 5px; border-right: 0; border-top: 0; border-radius: 0 0 0 3px; }
+  .cam-hud .br { right: 5px; bottom: 5px; border-left: 0; border-top: 0; border-radius: 0 0 3px 0; }
 
-  .cam-side { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
-  .cam-side .nm { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .2em; color: #e0f2fe; --mdc-icon-size: 17px; }
+  .cam-side { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+  .cam-side .nm { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .2em; color: #e0f2fe; --mdc-icon-size: 16px; }
   .cam-side .nm ha-icon { color: var(--cyan); }
-  .cam-side .meta { font-size: 9px; letter-spacing: .16em; line-height: 1.9; color: var(--muted); }
+  .cam-side .meta { display: flex; flex-wrap: wrap; gap: 3px 16px; font-size: 9px; letter-spacing: .14em; color: var(--muted); }
   .cam-pill {
-    display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; padding: 4px 10px;
+    display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; padding: 3px 9px;
     border-radius: 999px; font-size: 9px; letter-spacing: .18em; color: var(--green);
     border: 1px solid rgba(52, 211, 153, .35); background: rgba(52, 211, 153, .08);
   }
   .cam-pill.off { color: var(--muted); border-color: rgba(100, 128, 159, .35); background: rgba(100, 128, 159, .08); }
   .cam-pill b { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
-  .cam-side .acts { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .cam-side .acts { margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
 
   .water { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .ring { padding: 12px 8px; border-radius: 14px; text-align: center; background: var(--panel); border: 1px solid var(--line); cursor: pointer; transition: border-color .18s ease, transform .18s ease; }
@@ -255,12 +283,14 @@ const CSS = `
   }
   .nav:hover { background: rgba(34, 211, 238, .14); border-color: rgba(34, 211, 238, .6); box-shadow: 0 0 18px rgba(34, 211, 238, .25); }
 
-  @media (max-width: 1100px) { .mi { grid-template-columns: repeat(3, 1fr); } .cam { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .mi { grid-template-columns: repeat(3, 1fr); } .cam { grid-template-columns: 260px 1fr; } }
   @media (max-width: 760px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .rooms { grid-template-columns: 1fr; }
     .mi { grid-template-columns: repeat(2, 1fr); }
     .water { grid-template-columns: repeat(2, 1fr); }
+    .cam { grid-template-columns: 1fr; }
+    .cam-frame { max-width: 320px; }
     .clock b { font-size: 24px; }
   }
 `;
@@ -310,6 +340,52 @@ class TechHomeCard extends HTMLElement {
     return Number.isFinite(n) ? n.toFixed(digits) : "--";
   }
 
+  _renderTrend() {
+    const chart = this.shadowRoot.getElementById("chart");
+    const avgEl = this.shadowRoot.getElementById("trend-avg");
+    if (!chart) return;
+    const rows = [];
+    const grab = (st, key) => {
+      const arr = st && st.attributes ? st.attributes[key] : null;
+      if (!Array.isArray(arr)) return;
+      arr.forEach((d) => {
+        if (d && d.date && Number.isFinite(Number(d.kwh))) rows.push({ date: d.date, kwh: Number(d.kwh) });
+      });
+    };
+    grab(this._state(TREND.prev), "last_month_by_day");
+    grab(this._state(TREND.usage), "this_month_by_day");
+    const map = new Map();
+    rows.forEach((r) => map.set(r.date, r.kwh));
+    const days = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-7);
+    if (!days.length) {
+      if (this._trendSig !== "empty") {
+        this._trendSig = "empty";
+        chart.innerHTML = '<div class="empty">NO DATA</div>';
+        if (avgEl) avgEl.textContent = "--";
+      }
+      return;
+    }
+    const sig = days.map((d) => d[0] + ":" + d[1]).join("|");
+    if (this._trendSig === sig) return;
+    this._trendSig = sig;
+    const max = Math.max(...days.map((d) => d[1]), 1);
+    const today = days[days.length - 1][0];
+    chart.innerHTML = days
+      .map(([date, kwh]) => {
+        const [, m, d] = date.split("-");
+        const h = 4 + (kwh / max) * 62;
+        return `<div class="col${date === today ? " today" : ""}" title="${m}/${d} · ${kwh.toFixed(2)} kWh">
+          <div class="num">${kwh.toFixed(1)}</div>
+          <div class="bar" style="height:${h.toFixed(1)}px"></div>
+          <div class="day">${Number(m)}/${Number(d)}</div>
+        </div>`;
+      })
+      .join("");
+    chart.querySelectorAll(".col").forEach((el) => el.addEventListener("click", () => this._navigate("/csg-power")));
+    const avg = days.reduce((a, [, v]) => a + v, 0) / days.length;
+    if (avgEl) avgEl.textContent = avg.toFixed(1);
+  }
+
   _moreInfo(entity) {
     this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: entity }, bubbles: true, composed: true }));
   }
@@ -333,6 +409,7 @@ class TechHomeCard extends HTMLElement {
   _build() {
     this._built = true;
     this._refs.camCard = null;
+    this._trendSig = null;
     this.shadowRoot.innerHTML = `
       <style>${CSS}</style>
       <div class="wrap">
@@ -353,6 +430,14 @@ class TechHomeCard extends HTMLElement {
 
         <div class="stats" id="stats"></div>
 
+        <div class="trend">
+          <div class="trend-head">
+            <div class="t">POWER TREND / 近 7 天用电</div>
+            <div class="v"><b id="trend-avg">--</b><i>kWh / 日均</i></div>
+          </div>
+          <div class="chart" id="chart"></div>
+        </div>
+
         <div class="sect">ROOMS / 房间</div>
         <div class="rooms" id="rooms"></div>
 
@@ -371,7 +456,7 @@ class TechHomeCard extends HTMLElement {
           <div class="cam-side">
             <div class="nm"><ha-icon icon="mdi:cctv"></ha-icon>${CAM.name}</div>
             <div class="cam-pill" id="cam-pill"><b></b><span id="cam-state">OFFLINE</span></div>
-            <div class="meta">${CAM.model}<br>GO2RTC · RTSP 8554<br>SNAPSHOT 2 FPS</div>
+            <div class="meta"><span>${CAM.model}</span><span>GO2RTC · RTSP 8554</span><span>SNAPSHOT 2 FPS</span></div>
             <div class="acts">
               <div class="chip" id="cam-power"><ha-icon icon="mdi:power"></ha-icon>电源</div>
               <div class="chip" id="cam-info"><ha-icon icon="mdi:arrow-expand"></ha-icon>详情</div>
@@ -552,6 +637,8 @@ class TechHomeCard extends HTMLElement {
       const digits = s.unit === "¥" ? 2 : s.unit === "ppm" ? 0 : 1;
       ref.textContent = this._num(s.entity, digits);
     });
+
+    this._renderTrend();
 
     ROOMS.forEach((r, i) => {
       const ref = this._refs.rooms[i];

@@ -19,7 +19,7 @@ frontend:
   extra_module_url:
     - /local/3d/floor3d-card.js?v=5
     - /local/60s/card.js?v=1
-    - /local/tech/tech-home.js?v=5
+    - /local/tech/tech-home.js?v=7
 
 automation: !include automations.yaml
 script: !include scripts.yaml
