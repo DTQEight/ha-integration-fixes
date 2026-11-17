@@ -32,7 +32,6 @@ const WATER = [
 
 const NAV = [
   { label: "3D 户型", icon: "mdi:home-city", path: "/home-dash/plan" },
-  { label: "平面图", icon: "mdi:floor-plan", path: "/home-dash/plan-2d" },
   { label: "简报", icon: "mdi:newspaper-variant-outline", path: "/home-dash/brief" },
   { label: "60s", icon: "mdi:newspaper-variant", path: "/sixty" },
   { label: "地图", icon: "mdi:map", path: "/map" },
