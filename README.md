@@ -323,10 +323,10 @@ ingress:
 | 域名 | 服务 | 本地端口 |
 |---|---|---|
 | `ha.example.com` | Home Assistant | 8123 |
-| `2m.example.com` | 2bt0 资源库 | 8000 |
-| `cf-moviepilot.example.com` | MoviePilot | 3000 |
-| `cf-115.example.com` | 115transfer | 3698 |
-| `cf-log.example.com` | 日志收集 | 5000 |
+| `2bt0.example.com` | 2bt0 资源库 | 8000 |
+| `mp.example.com` | MoviePilot | 3000 |
+| `115.example.com` | 115transfer | 3698 |
+| `log.example.com` | 日志收集 | 5000（待清理旧 AAAA 记录） |
 | `jellyfin.example.com` | Jellyfin | 8096 |
 | `emby.example.com` | Emby | 18097 |
 | `iptv.example.com` | IPTV 源站 | 1905 |
