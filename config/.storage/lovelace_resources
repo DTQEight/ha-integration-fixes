@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace_resources",
+  "data": {
+    "items": [
+      {
+        "id": "e0509d47443146218d1939990f28bb8e",
+        "url": "/local/3d/floor3d-card.js?v=5",
+        "type": "module"
+      },
+      {
+        "id": "edb0642835ca424ab6b84b075eae6285",
+        "url": "/local/60s/card.js?v=1",
+        "type": "module"
+      }
+    ]
+  }
+}

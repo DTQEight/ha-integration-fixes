@@ -1,0 +1,57 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "选择 BeHome 授权方式",
+                "description": "BeHome 设备可以通过三种不同的方式在 Home Assistant 中设置。\n\n您可以使用微信扫码登录、从您的 bemfa.com 账户导入，或者手动输入用户私钥。",
+                "menu_options": {
+                    "wechat_scan": "微信扫码登录",
+                    "oauth": "从 bemfa.com 导入 (推荐)",
+                    "manual": "手动输入用户私钥"
+                }
+            },
+            "manual": {
+                "title": "手动输入用户私钥",
+                "data": {
+                    "private_key": "用户私钥"
+                }
+            }
+        },
+        "progress": {
+            "wechat_scan": "请使用微信扫描下方二维码。扫码成功后，此页面会自动继续。\n\n![微信扫码登录二维码]({qr_image})"
+        },
+        "abort": {
+            "invalid_token": "从巴法云获取的Token无效，无法提取私钥。",
+            "already_configured": "BeHome 已经配置过。如需重新配置，请先删除现有集成。",
+            "wechat_not_scanned": "微信扫码登录已超时，请重新扫码登录。",
+            "wechat_qr_failed": "微信登录二维码获取失败，请稍后重试。",
+            "wechat_login_failed": "微信登录失败，请稍后重试。",
+            "reauth_successful": "重新授权成功！"
+        },
+        "error": {
+            "empty_key": "用户私钥不能为空。"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "设备同步设置",
+                "description": "选择设备同步模式。自动模式会同步账号下所有支持的 BeHome 设备；手动模式会在下一步选择要同步的设备。",
+                "menu_options": {
+                    "auto_sync": "自动同步所有设备",
+                    "manual_devices": "手动选择同步设备"
+                }
+            },
+            "manual_devices": {
+                "title": "选择同步设备",
+                "description": "只选择需要从 BeHome 同步到 Home Assistant 的设备。未选择且此前由本集成创建的设备和实体会被删除；不选择任何设备时会删除本集成创建的所有设备和实体。",
+                "data": {
+                    "selected_devices": "手动同步设备"
+                }
+            }
+        },
+        "abort": {
+            "invalid_key": "当前配置项中没有有效的用户私钥，无法读取设备列表。"
+        }
+    }
+}

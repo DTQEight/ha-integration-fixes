@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace_dashboards",
+  "data": {
+    "items": [
+      {
+        "id": "map",
+        "icon": "mdi:map",
+        "title": "地图",
+        "url_path": "map",
+        "require_admin": false,
+        "show_in_sidebar": true,
+        "mode": "storage"
+      },
+      {
+        "id": "home_dash",
+        "url_path": "home-dash",
+        "title": "家居",
+        "icon": "mdi:home-heart",
+        "show_in_sidebar": true,
+        "require_admin": false,
+        "mode": "storage"
+      },
+      {
+        "id": "sixty",
+        "title": "60s 资讯",
+        "icon": "mdi:newspaper-variant",
+        "show_in_sidebar": true,
+        "require_admin": false,
+        "mode": "storage",
+        "url_path": "sixty"
+      }
+    ]
+  }
+}

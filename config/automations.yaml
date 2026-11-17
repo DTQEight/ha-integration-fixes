@@ -1,0 +1,110 @@
+- id: xiaoai_tv_control
+  alias: 小爱同学控制电视
+  triggers:
+    - trigger: mqtt
+      topic: tv001
+  conditions: []
+  actions:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.payload | trim == 'on' }}"
+          sequence:
+            - action: shell_command.tv_wake
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.payload | trim == 'off' }}"
+          sequence:
+            - action: shell_command.tv_sleep
+
+- id: wecom_purifier_daily_report
+  alias: 企业微信-净水器日报
+  triggers:
+    - trigger: time
+      at: "09:00:00"
+  conditions:
+    - condition: template
+      value_template: "{{ states('sensor.210006722454684_in_tds') not in ['unknown', 'unavailable'] }}"
+  actions:
+    - action: rest_command.wecom_notify
+      data:
+        message: |
+          【净水器日报】{{ now().strftime('%m-%d %H:%M') }}
+          原水 TDS：{{ states('sensor.210006722454684_in_tds') }} ppm
+          纯水 TDS：{{ states('sensor.210006722454684_out_tds') }} ppm
+          {%- if states('sensor.210006722454684_life1') | float(0) > 0 %}
+          PCB滤芯：剩余 {{ states('sensor.210006722454684_life1') }}%，约 {{ (states('sensor.210006722454684_life1') | float(0) / 100 * 888) | round(0) | int }} 天
+          {%- endif %}
+          {%- if states('sensor.210006722454684_life2') | float(0) > 0 %}
+          RO滤芯：剩余 {{ states('sensor.210006722454684_life2') }}%，约 {{ (states('sensor.210006722454684_life2') | float(0) / 100 * 2066) | round(0) | int }} 天
+          {%- endif %}
+          {%- if states('sensor.210006722454684_life3') | float(0) > 0 %}
+          滤芯3：剩余 {{ states('sensor.210006722454684_life3') }}%，约 {{ (states('sensor.210006722454684_life3') | float(0) / 100 * 888) | round(0) | int }} 天
+          {%- endif %}
+          累计用水：{{ states('sensor.210006722454684_water_consumption') }} L
+
+- id: wecom_device_power_notify
+  alias: 企业微信-设备开关通知
+  triggers:
+    - trigger: state
+      entity_id:
+        - climate.208907210826263_climate
+        - climate.210006722454675_climate
+        - climate.211106234581522_climate
+        - fan.211106238582802_fan
+        - switch.chuang_wei_dian_shi
+  conditions:
+    - condition: template
+      value_template: >-
+        {% set f = trigger.from_state.state if trigger.from_state else 'unknown' %}
+        {% set t = trigger.to_state.state if trigger.to_state else 'unknown' %}
+        {% set valid = ['on', 'off', 'cool', 'heat', 'dry', 'fan_only', 'auto'] %}
+        {{ f in valid and t in valid and (f == 'off') != (t == 'off') }}
+  actions:
+    - action: rest_command.wecom_notify
+      data:
+        message: >-
+          {% set name = device_attr(trigger.entity_id, 'name') or state_attr(trigger.entity_id, 'friendly_name') or trigger.entity_id %}
+          {% set on = trigger.to_state.state != 'off' %}
+          {{ name }} 已{{ '开启' if on else '关闭' }}
+          {%- if on and state_attr(trigger.entity_id, 'temperature') is not none %}，设定 {{ state_attr(trigger.entity_id, 'temperature') }}℃{% endif %}
+          {%- if on and state_attr(trigger.entity_id, 'percentage') is not none %}，风量 {{ state_attr(trigger.entity_id, 'percentage') }}%{% endif %}
+          （{{ now().strftime('%H:%M') }}）
+
+- id: wecom_purifier_filter_alert
+  alias: 企业微信-滤芯不足提醒
+  triggers:
+    - trigger: template
+      value_template: >-
+        {% set items = [('sensor.210006722454684_life1', 'PCB滤芯'), ('sensor.210006722454684_life2', 'RO滤芯'), ('sensor.210006722454684_life3', '滤芯3')] %}
+        {% set ns = namespace(low=0) %}
+        {% for entity, label in items %}
+        {% set v = states(entity) | float(0) %}
+        {% if 0 < v < 10 %}{% set ns.low = ns.low + 1 %}{% endif %}
+        {% endfor %}
+        {{ ns.low > 0 }}
+  actions:
+    - action: rest_command.wecom_notify
+      data:
+        message: >-
+          【滤芯提醒】{% set items = [('sensor.210006722454684_life1', 'PCB滤芯'), ('sensor.210006722454684_life2', 'RO滤芯'), ('sensor.210006722454684_life3', '滤芯3')] %}{% set ns = namespace(p=[]) %}{% for entity, label in items %}{% set v = states(entity) | float(0) %}{% if 0 < v < 10 %}{% set ns.p = ns.p + [label ~ '剩余' ~ (v | int) ~ '%'] %}{% endif %}{% endfor %}{{ ns.p | join('，') }}，请及时更换。
+- id: daily_brief_60s_push
+  alias: "每日简报推送（60s -> 企业微信）"
+  description: "每天 07:30 分 4 条文本推送：要闻 1-8、要闻 9-15、微博热搜、历史上的今天"
+  mode: single
+  triggers:
+    - trigger: time
+      at: "07:30:00"
+  actions:
+    - action: rest_command.wecom_notify
+      data:
+        message: "【今日简报 1/2 · {{ states('sensor.mei_ri_jian_bao') }}】\n{% for i in (state_attr('sensor.mei_ri_jian_bao', 'news') or [])[:8] %}{{ loop.index }}. {{ i }}\n{% endfor %}"
+    - action: rest_command.wecom_notify
+      data:
+        message: "【今日简报 2/2 · {{ states('sensor.mei_ri_jian_bao') }}】\n{% for i in (state_attr('sensor.mei_ri_jian_bao', 'news') or [])[8:15] %}{{ 8 + loop.index }}. {{ i }}\n{% endfor %}"
+    - action: rest_command.wecom_notify
+      data:
+        message: "【微博热搜】\n{% for r in (state_attr('sensor.wei_bo_re_sou', 'data') or [])[:10] %}{{ loop.index }}. {{ r.title }}\n{% endfor %}"
+    - action: rest_command.wecom_notify
+      data:
+        message: "【历史上的今天 · {{ states('sensor.li_shi_shang_de_jin_tian') }}】\n{% for r in (state_attr('sensor.li_shi_shang_de_jin_tian', 'items') or [])[:5] %}{{ r.year }} · {{ r.title }}\n{% endfor %}"

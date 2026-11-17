@@ -1,0 +1,60 @@
+"""Binary sensor for Midea Lan."""
+
+from typing import cast
+
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_DEVICE_ID, CONF_SENSORS, Platform
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from .const import DEVICES, DOMAIN, supports_device
+from .midea_devices import MIDEA_DEVICES
+from .midea_entity import MideaEntity
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up sensors for device."""
+    device_id = config_entry.data.get(CONF_DEVICE_ID)
+    device = hass.data[DOMAIN][DEVICES].get(device_id)
+    extra_sensors = config_entry.options.get(CONF_SENSORS, [])
+    binary_sensors = []
+    for entity_key, config in cast(
+        "dict",
+        MIDEA_DEVICES[device.device_type]["entities"],
+    ).items():
+        if (
+            config["type"] != Platform.BINARY_SENSOR
+            or not supports_device(device.model, device.subtype, config)
+            or (not config.get("default") and entity_key not in extra_sensors)
+        ):
+            continue
+        required_attribute = config.get("required_attribute")
+        if (
+            required_attribute is not None
+            and required_attribute not in device.attributes
+        ):
+            continue
+        binary_sensors.append(MideaBinarySensor(device, entity_key))
+    async_add_entities(binary_sensors)
+
+
+class MideaBinarySensor(MideaEntity, BinarySensorEntity):
+    """Represent a Midea binary sensor."""
+
+    @property
+    def device_class(self) -> BinarySensorDeviceClass | None:
+        """Device class of the binary sensor."""
+        return cast("BinarySensorDeviceClass", self._config.get("device_class"))
+
+    @property
+    def is_on(self) -> bool:
+        """Whether the binary sensor is on."""
+        return cast("bool", self._device.get_attribute(self._entity_key))

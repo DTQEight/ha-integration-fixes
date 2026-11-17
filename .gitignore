@@ -1,0 +1,22 @@
+# HA 运行时产物与密钥，不纳入版本库
+config/secrets.yaml
+config/.storage/auth
+config/.storage/auth_provider.*
+config/.storage/core.*
+config/.storage/*.corrupt
+config/.storage/onboarding
+config/.storage/person
+config/home-assistant*.log*
+config/home-assistant_v2.db*
+config/6s_cache/
+config/tts/
+config/deps/
+config/backups/
+config/.cloud/
+
+# 通用
+__pycache__/
+*.pyc
+*.bak*
+.DS_Store
+Thumbs.db

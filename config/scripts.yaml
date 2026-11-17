@@ -1,0 +1,7 @@
+wecom_test:
+  alias: 企业微信测试推送
+  sequence:
+    - action: rest_command.wecom_notify
+      data:
+        message: "【Home Assistant】企业微信通道测试成功 {{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+  mode: single

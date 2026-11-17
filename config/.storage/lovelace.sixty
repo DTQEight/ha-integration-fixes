@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.sixty",
+  "data": {
+    "config": {
+      "views": [
+        {
+          "title": "今日",
+          "path": "today",
+          "icon": "mdi:newspaper-variant",
+          "type": "panel",
+          "cards": [
+            {
+              "type": "custom:sixty-hub",
+              "title": "60S SIGNAL",
+              "subtitle": "多源资讯聚合终端",
+              "channels": [
+                {
+                  "key": "news",
+                  "entity": "sensor.liu_shi_miao_zi_xun",
+                  "name": "资讯",
+                  "code": "NEWS",
+                  "icon": "mdi:newspaper-variant-outline",
+                  "accent": "#22d3ee"
+                },
+                {
+                  "key": "trend-a",
+                  "entity": "sensor.liu_shi_miao_re_sou_a",
+                  "name": "热搜 A",
+                  "code": "TREND",
+                  "icon": "mdi:fire",
+                  "accent": "#f43f5e"
+                },
+                {
+                  "key": "trend-b",
+                  "entity": "sensor.liu_shi_miao_re_sou_b",
+                  "name": "热搜 B",
+                  "code": "TREND-B",
+                  "icon": "mdi:fire-circle",
+                  "accent": "#fb923c"
+                },
+                {
+                  "key": "screen",
+                  "entity": "sensor.liu_shi_miao_ying_shi",
+                  "name": "影视",
+                  "code": "SCREEN",
+                  "icon": "mdi:movie-open-outline",
+                  "accent": "#a78bfa"
+                },
+                {
+                  "key": "life",
+                  "entity": "sensor.liu_shi_miao_sheng_huo",
+                  "name": "生活",
+                  "code": "LIFE",
+                  "icon": "mdi:weather-partly-cloudy",
+                  "accent": "#34d399"
+                },
+                {
+                  "key": "fun",
+                  "entity": "sensor.liu_shi_miao_qu_wen",
+                  "name": "趣闻",
+                  "code": "FUN",
+                  "icon": "mdi:emoticon-wink-outline",
+                  "accent": "#f472b6"
+                },
+                {
+                  "key": "time",
+                  "entity": "sensor.liu_shi_miao_li_shi",
+                  "name": "历史",
+                  "code": "TIME",
+                  "icon": "mdi:history",
+                  "accent": "#fbbf24"
+                },
+                {
+                  "key": "tool",
+                  "entity": "sensor.liu_shi_miao_gong_ju",
+                  "name": "工具",
+                  "code": "TOOL",
+                  "icon": "mdi:toolbox-outline",
+                  "accent": "#38bdf8"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

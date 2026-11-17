@@ -1,0 +1,14 @@
+{
+  "domain": "behome",
+  "name": "BeHome",
+  "codeowners": ["@bemfa"],
+  "config_flow": true,
+  "dependencies": ["application_credentials"],
+  "documentation": "https://github.com/bemfa/behome",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/bemfa/behome/issues",
+  "loggers": ["custom_components.behome"],
+  "requirements": [],
+  "version": "1.2.2"
+}

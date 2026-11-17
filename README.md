@@ -14,8 +14,10 @@
 | [`patches/map_tiles`](patches/map_tiles) | 补丁 | 上述 map_tiles 的两行 diff，便于 HA 升级后重新套用 |
 | [`dashboards/sixty-hub`](dashboards/sixty-hub) | 仪表盘 + 脚本 | 60s 全部接口接入 HA：本地容器 + `sixy.py` 聚合 + 8 个 `command_line` 传感器 + 自绘卡片 |
 | [`dashboards/floor3d`](dashboards/floor3d) | 前端卡片 | 纯 Three.js 自绘 3D 户型卡片，玻璃墙、家具、自动取景、自由缩放 |
+| [`config`](config) | 完整配置快照 | 当前 HA 全部功能：configuration / automations / scripts / scenes / www / blueprints / 仪表盘 / 6 个自定义集成 |
+| [`deploy/docker-compose.yml`](deploy/docker-compose.yml) | 部署 | HA（host 网络）+ 60s（4399）的容器编排模板 |
 
-安装方式：完整集成直接复制 `custom_components/<集成>` 到 HA 的 `config/custom_components/`；补丁按各自目录里的说明应用。
+安装方式：完整集成直接复制 `custom_components/<集成>` 到 HA 的 `config/custom_components/`；补丁按各自目录里的说明应用；需要整套复刻时直接用 `config/`。
 
 ---
 
@@ -265,6 +267,33 @@ height: 560
 户型与家具数据写在 `floor3d-card.js` 顶部常量，单位与 `floorplan.png` 对齐。文件与交互说明见 [`dashboards/floor3d`](dashboards/floor3d)。
 
 > 模块 URL 必须带版本号（`?v=5`），否则浏览器 31 天强缓存会让更新看不见；这是本卡片多次「配置错误」的真正原因。
+
+## 7. 完整配置快照
+
+[`config/`](config) 是当前 HA 实例的完整导出，可直接作为复刻起点：
+
+| 内容 | 说明 |
+|---|---|
+| `configuration.yaml` | 全部集成配置：rest / command_line / template / shell_command / rest_command / frontend / lovelace / http |
+| `automations.yaml` | 6 条自动化：小爱控制电视、净水器日报、设备开关通知、滤芯不足提醒、07:30 简报推送 |
+| `scripts.yaml` / `scenes.yaml` | 脚本与场景 |
+| `csg-dashboard.yaml` | 用电仪表盘（旧版 YAML 模式） |
+| `scripts/*.py` | `sixy.py` 聚合、`wake_tv.py` 电视唤醒、`wecom_report_trigger.py`、`bemfa_send.py` |
+| `www/` | 3D 卡片、60s 卡片、`floorplan.png` |
+| `blueprints/` | 自动化蓝图 |
+| `custom_components/` | map_tiles（含代理补丁）、xiaomi_home、midea_ac_lan、china_southern_power_grid_stat、bemfa_cloud、behome |
+| `.storage/lovelace*` | 4 个仪表盘与资源清单（含 `url_path`） |
+
+**未包含（有意排除）**：`secrets.yaml`、`.storage/auth*`、`.storage/core.*`、`home-assistant_v2.db*`、日志、`6s_cache`、`tts`、所有 `*.bak*`。
+
+首次部署：
+
+```bash
+cp config/secrets.example.yaml config/secrets.yaml   # 填入企微 Webhook
+docker compose -f deploy/docker-compose.yml up -d
+```
+
+`custom_components/` 内的第三方集成（xiaomi_home、midea_ac_lan 等）属于 HACS 组件，升级请走 HACS，不要直接改这里的副本。
 
 ## Thank you
 - [lyylyylyylyy](https://github.com/lyylyylyylyy): PR [#30](https://github.com/CubicPill/china_southern_power_grid_stat/pull/30) 短信验证码登录支持
