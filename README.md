@@ -315,6 +315,17 @@ docker compose -f deploy/docker-compose.yml up -d
 
 新增设备只需在 `tech-home.js` 顶部的 `MI` 数组追加一项（`kind` 取 `switch` / `light` / `fan` / `climate` / `media_player` / `water_heater`），并把 `extra_module_url` 的 `?v=` 递增。
 
+### 摄像头预览
+
+摄像头本身只接在 go2rtc（`streams.camera1`，小米 `chuangmi.camera.81ac1`，H.265），HA 里没有对应实体，所以先补一个 `generic` 摄像头再在卡片里预览：
+
+- 实体：`camera.camera_01`，`still_image_url` 指向 go2rtc 的 `/api/frame.jpeg?src=camera1`（约 2 fps），`stream_source` 指向 `rtsp://127.0.0.1:8554/camera1`
+- 卡片布局：16:9 画面 + HUD（角标、REC、时间/分辨率/编码）+ 右侧状态面板（在线状态、型号、电源与详情按钮）
+- 预览用快照轮询而不是直播：H.265 无法在浏览器直接播放，`camera_view: live` 会黑屏；点「详情」进 more-info 再决定是否看流
+- 内嵌的是原生 `hui-picture-entity-card`（`camera_view: auto`），由 `window.loadCardHelpers()` 创建，鉴权、快照刷新都交给前端自己处理
+
+> HA 2026.11 的 `generic` 摄像头已不支持 YAML 配置（没有 `async_setup_platform`），只能在 UI 里加配置项。批量/无头部署时可以直接写 `.storage/core.config_entries`：新建一条 `domain: generic`、`version: 2` 的条目，`options` 里放 `stream_source` / `still_image_url` / `name` / `content_type` 与 `advanced`（`framerate`、`verify_ssl` 必填）。改之前先停容器，避免被运行中的实例覆盖。
+
 ### 表单输入框看不清
 
 深色主题下，设备命名、集成配置等对话框的输入框会变成白底浅字。原因是这些 `ha-textfield` / `ha-select` 读的是另一组变量，只设 `primary-text-color` 不够。`tech_dark.yaml` 里补齐：

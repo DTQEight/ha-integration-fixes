@@ -51,6 +51,13 @@ const MI = [
   { name: "玄关灯", entity: "switch.zimi_cn_1058009483_dhkg01_on_p_2_1", icon: "mdi:light-switch", kind: "switch" },
 ];
 
+const CAM = {
+  entity: "camera.camera_01",
+  power: "switch.chuangmi_cn_1184756078_81ac1_on_p_2_1",
+  name: "摄像机",
+  model: "CHUANGMI 81AC1 · 1080P · H.265",
+};
+
 const CSS = `
   :host { display: block; }
   * { box-sizing: border-box; }
@@ -186,6 +193,47 @@ const CSS = `
   .mi-tile.on .pwr { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
   .mi-tile.on { border-color: rgba(34, 211, 238, .38); background: linear-gradient(150deg, rgba(34, 211, 238, .1), rgba(13, 22, 38, .72)); }
 
+  .cam { margin-top: 10px; display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; }
+  .cam-frame {
+    position: relative; min-height: 200px; border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--line); background: #02060c;
+    box-shadow: inset 0 0 40px rgba(8, 145, 178, .12);
+  }
+  .cam-body { display: block; --ha-card-border-width: 0; --ha-card-box-shadow: none; --ha-card-border-radius: 0; }
+  .cam-body hui-picture-entity-card { display: block; }
+  .cam-frame.off .cam-body { filter: grayscale(1) brightness(.5); }
+  .cam-fallback { display: grid; place-items: center; min-height: 200px; color: var(--muted); font-size: 10px; letter-spacing: .22em; }
+  .cam-hud { position: absolute; inset: 0; pointer-events: none; z-index: 2; font-size: 9px; letter-spacing: .18em; }
+  .cam-hud .tag {
+    position: absolute; left: 10px; top: 10px; padding: 4px 8px; border-radius: 6px; color: var(--cyan);
+    background: rgba(2, 6, 12, .65); border: 1px solid rgba(34, 211, 238, .45); backdrop-filter: blur(4px);
+  }
+  .cam-hud .rec {
+    position: absolute; right: 10px; top: 10px; display: flex; align-items: center; gap: 6px;
+    padding: 4px 8px; border-radius: 6px; color: var(--red);
+    background: rgba(2, 6, 12, .65); border: 1px solid rgba(248, 113, 113, .4); backdrop-filter: blur(4px);
+  }
+  .cam-hud .rec i { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); animation: pulse 1.6s infinite; }
+  .cam-hud .meter { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 10px; color: var(--muted); }
+  .cam-hud .corner { position: absolute; width: 14px; height: 14px; border: 1px solid rgba(34, 211, 238, .55); }
+  .cam-hud .tl { left: 6px; top: 6px; border-right: 0; border-bottom: 0; border-radius: 4px 0 0 0; }
+  .cam-hud .tr { right: 6px; top: 6px; border-left: 0; border-bottom: 0; border-radius: 0 4px 0 0; }
+  .cam-hud .bl { left: 6px; bottom: 6px; border-right: 0; border-top: 0; border-radius: 0 0 0 4px; }
+  .cam-hud .br { right: 6px; bottom: 6px; border-left: 0; border-top: 0; border-radius: 0 0 4px 0; }
+
+  .cam-side { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); }
+  .cam-side .nm { display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .2em; color: #e0f2fe; --mdc-icon-size: 17px; }
+  .cam-side .nm ha-icon { color: var(--cyan); }
+  .cam-side .meta { font-size: 9px; letter-spacing: .16em; line-height: 1.9; color: var(--muted); }
+  .cam-pill {
+    display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; padding: 4px 10px;
+    border-radius: 999px; font-size: 9px; letter-spacing: .18em; color: var(--green);
+    border: 1px solid rgba(52, 211, 153, .35); background: rgba(52, 211, 153, .08);
+  }
+  .cam-pill.off { color: var(--muted); border-color: rgba(100, 128, 159, .35); background: rgba(100, 128, 159, .08); }
+  .cam-pill b { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+  .cam-side .acts { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+
   .water { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .ring { padding: 12px 8px; border-radius: 14px; text-align: center; background: var(--panel); border: 1px solid var(--line); cursor: pointer; transition: border-color .18s ease, transform .18s ease; }
   .ring:hover { transform: translateY(-2px); border-color: rgba(34, 211, 238, .45); }
@@ -207,7 +255,7 @@ const CSS = `
   }
   .nav:hover { background: rgba(34, 211, 238, .14); border-color: rgba(34, 211, 238, .6); box-shadow: 0 0 18px rgba(34, 211, 238, .25); }
 
-  @media (max-width: 1100px) { .mi { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 1100px) { .mi { grid-template-columns: repeat(3, 1fr); } .cam { grid-template-columns: 1fr; } }
   @media (max-width: 760px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .rooms { grid-template-columns: 1fr; }
@@ -284,6 +332,7 @@ class TechHomeCard extends HTMLElement {
 
   _build() {
     this._built = true;
+    this._refs.camCard = null;
     this.shadowRoot.innerHTML = `
       <style>${CSS}</style>
       <div class="wrap">
@@ -306,6 +355,29 @@ class TechHomeCard extends HTMLElement {
 
         <div class="sect">ROOMS / 房间</div>
         <div class="rooms" id="rooms"></div>
+
+        <div class="sect">CAMERA / 摄像头</div>
+        <div class="cam">
+          <div class="cam-frame" id="cam-frame">
+            <div class="cam-body" id="cam-body"></div>
+            <div class="cam-hud">
+              <span class="corner tl"></span><span class="corner tr"></span>
+              <span class="corner bl"></span><span class="corner br"></span>
+              <span class="tag">CAM 01</span>
+              <span class="rec"><i></i>REC</span>
+              <span class="meter"><span id="cam-ts">--:--:--</span><span>1080P</span><span>H.265</span></span>
+            </div>
+          </div>
+          <div class="cam-side">
+            <div class="nm"><ha-icon icon="mdi:cctv"></ha-icon>${CAM.name}</div>
+            <div class="cam-pill" id="cam-pill"><b></b><span id="cam-state">OFFLINE</span></div>
+            <div class="meta">${CAM.model}<br>GO2RTC · RTSP 8554<br>SNAPSHOT 2 FPS</div>
+            <div class="acts">
+              <div class="chip" id="cam-power"><ha-icon icon="mdi:power"></ha-icon>电源</div>
+              <div class="chip" id="cam-info"><ha-icon icon="mdi:arrow-expand"></ha-icon>详情</div>
+            </div>
+          </div>
+        </div>
 
         <div class="sect">MI HOME / 米家设备</div>
         <div class="mi" id="mi"></div>
@@ -390,6 +462,18 @@ class TechHomeCard extends HTMLElement {
       return { el, st: el.querySelector(`#mi-st-${i}`) };
     });
 
+    const camPower = this.shadowRoot.getElementById("cam-power");
+    this._refs.cam = {
+      frame: this.shadowRoot.getElementById("cam-frame"),
+      pill: this.shadowRoot.getElementById("cam-pill"),
+      state: this.shadowRoot.getElementById("cam-state"),
+      ts: this.shadowRoot.getElementById("cam-ts"),
+      power: camPower,
+    };
+    camPower.addEventListener("click", () => this._toggle(CAM.power));
+    this.shadowRoot.getElementById("cam-info").addEventListener("click", () => this._moreInfo(CAM.entity));
+    this._mountCamera();
+
     const waterEl = this.shadowRoot.getElementById("water");
     const R = 30, C = 2 * Math.PI * R;
     this._refs.water = WATER.map((w, i) => {
@@ -423,6 +507,40 @@ class TechHomeCard extends HTMLElement {
     });
 
     if (this._hass) this._update();
+  }
+
+  async _mountCamera() {
+    const host = this.shadowRoot.getElementById("cam-body");
+    if (!host || this._refs.camCard) return;
+    const cfg = {
+      type: "picture-entity",
+      entity: CAM.entity,
+      camera_view: "auto",
+      show_name: false,
+      show_state: false,
+      fit_mode: "cover",
+      aspect_ratio: "16:9",
+    };
+    let card = null;
+    try {
+      if (window.loadCardHelpers) {
+        const helpers = await window.loadCardHelpers();
+        card = helpers.createCardElement(cfg);
+      }
+    } catch (err) {
+      card = null;
+    }
+    if (!card && customElements.get("hui-picture-entity-card")) {
+      card = document.createElement("hui-picture-entity-card");
+      card.setConfig(cfg);
+    }
+    if (!card) {
+      host.innerHTML = '<div class="cam-fallback">PREVIEW UNAVAILABLE</div>';
+      return;
+    }
+    card.hass = this._hass;
+    host.appendChild(card);
+    this._refs.camCard = card;
   }
 
   _update() {
@@ -488,6 +606,17 @@ class TechHomeCard extends HTMLElement {
       ref.st.textContent = label;
     });
 
+    if (this._refs.cam) {
+      const cs = this._state(CAM.entity);
+      const online = !!cs && cs.state !== "unavailable" && cs.state !== "unknown";
+      this._refs.cam.frame.classList.toggle("off", !online);
+      this._refs.cam.pill.classList.toggle("off", !online);
+      this._refs.cam.state.textContent = online ? "ONLINE" : "OFFLINE";
+      const ps = this._state(CAM.power);
+      this._refs.cam.power.classList.toggle("on", !!ps && ps.state === "on");
+      if (this._refs.camCard) this._refs.camCard.hass = this._hass;
+    }
+
     WATER.forEach((w, i) => {
       const ref = this._refs.water[i];
       if (!ref) return;
@@ -509,6 +638,8 @@ class TechHomeCard extends HTMLElement {
     const clock = this.shadowRoot.getElementById("clock");
     const date = this.shadowRoot.getElementById("date");
     if (clock) clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const camTs = this.shadowRoot.getElementById("cam-ts");
+    if (camTs) camTs.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     if (date) {
       const wd = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][now.getDay()];
       date.textContent = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} · ${wd}`;
