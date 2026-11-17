@@ -307,6 +307,8 @@ docker compose -f deploy/docker-compose.yml up -d
 
 公网访问走 Cloudflare Tunnel，不开放路由器端口：`https://ha.example.com` → 本机 `cloudflared`（host 网络）→ `http://127.0.0.1:8123`。
 
+> 下文域名统一用 `example.com` 作示例，部署时替换成自己的域名。
+
 **1. 隧道 ingress**（`cloudflared/config.yml`，本地管理模式）
 
 ```yaml
