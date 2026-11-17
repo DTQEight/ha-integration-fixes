@@ -1,0 +1,122 @@
+# 合并进 configuration.yaml。已有 frontend: 的只加 extra_module_url 两项即可。
+
+frontend:
+  extra_module_url:
+    - /local/3d/floor3d-card.js?v=5
+    - /local/60s/card.js?v=1
+
+# 企业微信群机器人：Webhook 放 secrets.yaml 的 wecom_webhook_url
+rest_command:
+  wecom_notify:
+    url: !secret wecom_webhook_url
+    method: POST
+    content_type: "application/json"
+    payload: '{"msgtype": "text", "text": {"content": {{ message | tojson }}}}'
+    timeout: 10
+
+# 8 组聚合传感器：每组输出 {group, updated, sections:[{k,n,items,err}]}
+command_line:
+  - sensor:
+      name: "六十秒资讯"
+      unique_id: mi_news_60s
+      command: "python /config/scripts/sixy.py news"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 1800
+      command_timeout: 120
+  - sensor:
+      name: "六十秒热搜A"
+      unique_id: mi_hot_a_60s
+      command: "python /config/scripts/sixy.py hot_a"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 600
+      command_timeout: 120
+  - sensor:
+      name: "六十秒热搜B"
+      unique_id: mi_hot_b_60s
+      command: "python /config/scripts/sixy.py hot_b"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 1800
+      command_timeout: 120
+  - sensor:
+      name: "六十秒影视"
+      unique_id: mi_ent_60s
+      command: "python /config/scripts/sixy.py ent"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 3600
+      command_timeout: 120
+  - sensor:
+      name: "六十秒生活"
+      unique_id: mi_life_60s
+      command: "python /config/scripts/sixy.py life"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 1800
+      command_timeout: 120
+  - sensor:
+      name: "六十秒趣闻"
+      unique_id: mi_fun_60s
+      command: "python /config/scripts/sixy.py fun"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 3600
+      command_timeout: 120
+  - sensor:
+      name: "六十秒历史"
+      unique_id: mi_hist_60s
+      command: "python /config/scripts/sixy.py hist"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 21600
+      command_timeout: 120
+  - sensor:
+      name: "六十秒工具"
+      unique_id: mi_tool_60s
+      command: "python /config/scripts/sixy.py tool"
+      value_template: "{{ value_json.updated }}"
+      json_attributes:
+        - sections
+      scan_interval: 21600
+      command_timeout: 120
+
+# 简报推送用的三个原始传感器
+rest:
+  - resource: http://127.0.0.1:4399/v2/60s
+    scan_interval: 21600
+    sensor:
+      - name: "每日简报"
+        unique_id: daily_brief_60s
+        icon: mdi:newspaper-variant-outline
+        value_template: "{{ value_json.data.date }}"
+        json_attributes_path: "$.data"
+        json_attributes:
+          - news
+  - resource: http://127.0.0.1:4399/v2/weibo
+    scan_interval: 1800
+    sensor:
+      - name: "微博热搜"
+        unique_id: weibo_hot_60s
+        icon: mdi:fire
+        value_template: "{{ (value_json.data or []) | length }}"
+        json_attributes:
+          - data
+  - resource: http://127.0.0.1:4399/v2/today_in_history
+    scan_interval: 21600
+    sensor:
+      - name: "历史上的今天"
+        unique_id: today_in_history_60s
+        icon: mdi:history
+        value_template: "{{ value_json.data.date }}"
+        json_attributes_path: "$.data"
+        json_attributes:
+          - items

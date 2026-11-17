@@ -1,0 +1,21 @@
+# 追加到 automations.yaml。企微单条 2048 字节上限，故拆 4 条纯文本发送。
+- id: daily_brief_60s_push
+  alias: "每日简报推送（60s -> 企业微信）"
+  description: "每天 07:30 分 4 条文本推送：要闻 1-8、要闻 9-15、微博热搜、历史上的今天"
+  mode: single
+  triggers:
+    - trigger: time
+      at: "07:30:00"
+  actions:
+    - action: rest_command.wecom_notify
+      data:
+        message: "【今日简报 1/2 · {{ states('sensor.mei_ri_jian_bao') }}】\n{% for i in (state_attr('sensor.mei_ri_jian_bao', 'news') or [])[:8] %}{{ loop.index }}. {{ i }}\n{% endfor %}"
+    - action: rest_command.wecom_notify
+      data:
+        message: "【今日简报 2/2 · {{ states('sensor.mei_ri_jian_bao') }}】\n{% for i in (state_attr('sensor.mei_ri_jian_bao', 'news') or [])[8:15] %}{{ 8 + loop.index }}. {{ i }}\n{% endfor %}"
+    - action: rest_command.wecom_notify
+      data:
+        message: "【微博热搜】\n{% for r in (state_attr('sensor.wei_bo_re_sou', 'data') or [])[:10] %}{{ loop.index }}. {{ r.title }}\n{% endfor %}"
+    - action: rest_command.wecom_notify
+      data:
+        message: "【历史上的今天 · {{ states('sensor.li_shi_shang_de_jin_tian') }}】\n{% for r in (state_attr('sensor.li_shi_shang_de_jin_tian', 'items') or [])[:5] %}{{ r.year }} · {{ r.title }}\n{% endfor %}"

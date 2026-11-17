@@ -1,0 +1,19 @@
+--- /usr/src/homeassistant/homeassistant/components/map_tiles/views.py
++++ /config/custom_components/map_tiles/views.py
+@@ -43,6 +43,8 @@
+ 
+ _LOGGER = logging.getLogger(__name__)
+ 
++MAP_TILES_PROXY: Final = "http://192.168.31.1:7890"
++
+ # A root-relative path works behind any reverse proxy; an absolute URL built
+ # from the request's Host header would not if the proxy does not forward it.
+ VECTOR_TILE_PATH = "/api/map_tiles/vector/{z}/{x}/{y}.mvt"
+@@ -135,6 +137,7 @@
+                 headers=UPSTREAM_HEADERS,
+                 timeout=UPSTREAM_TIMEOUT,
+                 auto_decompress=False,
++                proxy=MAP_TILES_PROXY,
+             ) as response:
+                 if response.status >= HTTPStatus.BAD_REQUEST:
+                     _LOGGER.debug("Upstream %s returned %s", url, response.status)

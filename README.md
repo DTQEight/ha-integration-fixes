@@ -10,6 +10,10 @@
 | [`patches/midea_ac_lan`](patches/midea_ac_lan) | 补丁 | 美的空调（Midea AC LAN）局域网发现地址被路由器改写成网关，导致添加设备失败 |
 | [`docs/bemfa-cloud-sync.md`](docs/bemfa-cloud-sync.md) | 配置说明 | HA 设备同步到巴法云（Bemfa Cloud），再由米家/小爱同学语音控制 |
 | [`dashboards/csg-dashboard.yaml`](dashboards/csg-dashboard.yaml) | 仪表盘 | 用电仪表盘，纯内置卡片，无前端依赖 |
+| [`custom_components/map_tiles`](custom_components/map_tiles) | 完整集成 | HA 2026.11 地图底图空白：服务端代理 OSM 瓦片超时，改为走本地 HTTP 代理 |
+| [`patches/map_tiles`](patches/map_tiles) | 补丁 | 上述 map_tiles 的两行 diff，便于 HA 升级后重新套用 |
+| [`dashboards/sixty-hub`](dashboards/sixty-hub) | 仪表盘 + 脚本 | 60s 全部接口接入 HA：本地容器 + `sixy.py` 聚合 + 8 个 `command_line` 传感器 + 自绘卡片 |
+| [`dashboards/floor3d`](dashboards/floor3d) | 前端卡片 | 纯 Three.js 自绘 3D 户型卡片，玻璃墙、家具、自动取景、自由缩放 |
 
 安装方式：完整集成直接复制 `custom_components/<集成>` 到 HA 的 `config/custom_components/`；补丁按各自目录里的说明应用。
 
@@ -215,6 +219,52 @@ connect device 210006722454675(192.168.31.1:6444) using method 2 token/key faile
 前提是先搞清方向：`behome` 是巴法云 → HA，`bemfa_cloud` 才是 HA → 巴法云，两者可共存且不会回环。
 
 完整步骤、topic 生成规则、重复设备迁移和限制说明见 [`docs/bemfa-cloud-sync.md`](docs/bemfa-cloud-sync.md)。
+
+## 4. HA 2026.11 地图底图空白
+
+**现象**：地图页只有「家」图钉和米色底色，没有街道、海岸线、地名；浏览器控制台报
+`net::ERR_ABORTED /api/map_tiles/tilejson.json`。
+
+**根因**：HA 2026.11 改为**服务端代理** OSM 矢量瓦片，上游是 `vector.openstreetmap.org`。
+该域名在部分网络直连超时，`UPSTREAM_TIMEOUT = 10s` 后接口返回 502，前端拿不到 TileJSON 就不会请求任何瓦片。
+
+**修复**：覆盖内置 `map_tiles`，在拉取上游时加 `proxy=` 参数（两行改动）。
+
+```bash
+cp -r custom_components/map_tiles /path/to/config/custom_components/
+```
+
+组件里 `MAP_TILES_PROXY` 默认 `http://192.168.31.1:7890`，换成自己的代理；diff 见 [`patches/map_tiles`](patches/map_tiles)。
+
+修复前后：`tilejson.json` 从 `502 / 10.5s` 变成 `200 / 1.8KB / 0.01s`，矢量瓦片 `89KB`、栅格瓦片 `38KB` 均正常返回。
+
+> 地图上只有「家」没有人的轨迹是另一件事：需要在 `person` 上关联带 GPS 的 `device_tracker`（HA 手机 App，定位权限设为“始终允许”）。
+
+## 5. 60s 资讯接入 HA
+
+把 [vikiboss/60s](https://github.com/vikiboss/60s) 全部接口接进 HA：本地容器 `vikiboss/60s`（端口 4399）做数据源，
+`sixy.py` 分 8 组聚合，8 个 `command_line` 传感器承载，前端用自绘卡片展示，每天 07:30 推送企微。
+
+关键点：
+
+- 单组输出 1.3–10.1KB，避开 HA 状态属性 16KB 上限（此前知乎 48KB 直接被丢弃，页面空白）
+- 文件缓存 + 公共 API 兜底 + 失败结果缓存 30 分钟，避免重复打上游
+- 仪表盘 `.storage/lovelace_dashboards` 条目必须含 `url_path`，否则启动报 `KeyError: 'url_path'`，整站实体集体 unavailable
+
+文件、部署步骤、分组与刷新频率见 [`dashboards/sixty-hub`](dashboards/sixty-hub)。
+
+## 6. 自绘 3D 户型卡片
+
+纯 Three.js 实现的 3D 户型：玻璃墙体、简化家具、地板分色、阴影、8 角点自动取景、双指/滚轮自由缩放（3.5–45）。
+
+```yaml
+type: custom:floor3d-card
+height: 560
+```
+
+户型与家具数据写在 `floor3d-card.js` 顶部常量，单位与 `floorplan.png` 对齐。文件与交互说明见 [`dashboards/floor3d`](dashboards/floor3d)。
+
+> 模块 URL 必须带版本号（`?v=5`），否则浏览器 31 天强缓存会让更新看不见；这是本卡片多次「配置错误」的真正原因。
 
 ## Thank you
 - [lyylyylyylyy](https://github.com/lyylyylyylyy): PR [#30](https://github.com/CubicPill/china_southern_power_grid_stat/pull/30) 短信验证码登录支持
