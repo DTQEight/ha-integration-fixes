@@ -275,7 +275,7 @@ height: 560
 | 内容 | 说明 |
 |---|---|
 | `configuration.yaml` | 全部集成配置：rest / command_line / template / shell_command / rest_command / frontend / lovelace / http |
-| `automations.yaml` | 6 条自动化：小爱控制电视、净水器日报、设备开关通知、滤芯不足提醒、07:30 简报推送 |
+| `automations.yaml` | 5 条自动化：小爱控制电视、净水器日报、设备开关通知、滤芯不足提醒、07:30 简报推送 |
 | `scripts.yaml` / `scenes.yaml` | 脚本与场景 |
 | `csg-dashboard.yaml` | 用电仪表盘（旧版 YAML 模式） |
 | `scripts/*.py` | `sixy.py` 聚合、`wake_tv.py` 电视唤醒、`wecom_report_trigger.py`、`bemfa_send.py` |
