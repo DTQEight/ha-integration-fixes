@@ -51,7 +51,7 @@ height: 560
 - `FURNITURE`：中心坐标、宽深高、离地偏移、颜色
 - 设备点位：`markers`，`device.entity` 绑定 HA 实体，按 `states[entity].state` 改变颜色/发光
 
-坐标单位与 `www/floorplan.png` 的平面图一致（1 单位 ≈ 1 米）。
+坐标单位为米（1 单位 ≈ 1 米），与房间实际尺寸一致。
 
 ## 注意
 

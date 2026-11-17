@@ -264,7 +264,7 @@ type: custom:floor3d-card
 height: 560
 ```
 
-户型与家具数据写在 `floor3d-card.js` 顶部常量，单位与 `floorplan.png` 对齐。文件与交互说明见 [`dashboards/floor3d`](dashboards/floor3d)。
+户型与家具数据写在 `floor3d-card.js` 顶部常量（1 单位 ≈ 1 米），不依赖底图。文件与交互说明见 [`dashboards/floor3d`](dashboards/floor3d)。
 
 > 模块 URL 必须带版本号（`?v=5`），否则浏览器 31 天强缓存会让更新看不见；这是本卡片多次「配置错误」的真正原因。
 
@@ -279,7 +279,7 @@ height: 560
 | `scripts.yaml` / `scenes.yaml` | 脚本与场景 |
 | `csg-dashboard.yaml` | 用电仪表盘（旧版 YAML 模式） |
 | `scripts/*.py` | `sixy.py` 聚合、`wake_tv.py` 电视唤醒、`wecom_report_trigger.py`、`bemfa_send.py` |
-| `www/` | 3D 卡片、60s 卡片、`floorplan.png` |
+| `www/` | 3D 卡片、60s 卡片、科技感首页卡片（`tech/`） |
 | `blueprints/` | 自动化蓝图 |
 | `custom_components/` | map_tiles（含代理补丁）、xiaomi_home、midea_ac_lan、china_southern_power_grid_stat、bemfa_cloud、behome |
 | `.storage/lovelace*` | 4 个仪表盘与资源清单（含 `url_path`） |
