@@ -323,6 +323,7 @@ ingress:
 | 域名 | 服务 | 本地端口 |
 |---|---|---|
 | `ha.example.com` | Home Assistant | 8123 |
+| `nas.example.com` | UGOS Pro 桌面 | https 9443（`noTLSVerify`） |
 | `2bt0.example.com` | 2bt0 资源库 | 8000 |
 | `mp.example.com` | MoviePilot | 3000 |
 | `115.example.com` | 115transfer | 3698 |
