@@ -1,6 +1,18 @@
 # Loads default set of integrations. Do not remove.
 default_config:
 
+# 反向代理（Cloudflare Tunnel / Lucky）放行
+# 注意：HA 2026.11 起 http 配置已迁移到 .storage/http（yaml_migration_done: true），
+# 迁移完成后本段会被忽略。已运行中的实例需直接改 .storage/http 的 stable 节点，
+# 本段仅对全新部署（首次启动）有效。
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - ::1
+    - 192.168.31.0/24
+    - 172.30.32.0/23
+
 # Load frontend themes from the themes folder
 frontend:
   themes: !include_dir_merge_named themes

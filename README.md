@@ -303,6 +303,54 @@ docker compose -f deploy/docker-compose.yml up -d
 
 设计参考（只借鉴思路，未引入依赖）：Mushroom 的磁贴与芯片、Bubble Card 的玻璃拟态、card-mod 的霓虹描边、ApexCharts 系的等宽数字与深色数据面板。
 
+## 9. 反向代理（Cloudflare Tunnel）
+
+公网访问走 Cloudflare Tunnel，不开放路由器端口：`https://ha.example.com` → 本机 `cloudflared`（host 网络）→ `http://127.0.0.1:8123`。
+
+**1. 隧道 ingress**（`cloudflared/config.yml`，本地管理模式）
+
+```yaml
+ingress:
+  - hostname: ha.example.com
+    service: http://127.0.0.1:8123
+  - service: http_status:404
+```
+
+改完 `docker restart cloudflared`，日志出现 `Registered tunnel connection` 即成功。
+
+**2. DNS**：用隧道自带的 origin cert 建 CNAME，不必去后台手点
+
+```bash
+docker run --rm -u 0 \
+  -e TUNNEL_ORIGIN_CERT=/home/nonroot/.cloudflared/cert.pem \
+  -v /volume6/docker/cloudflared:/home/nonroot/.cloudflared \
+  cloudflare/cloudflared:latest tunnel \
+  --config /home/nonroot/.cloudflared/config.yml \
+  route dns <tunnel-id> ha.example.com
+```
+
+**3. 关键坑：HA 2026.11 的 `http:` 段会被忽略**
+
+`configuration.yaml` 里写 `http: use_x_forwarded_for / trusted_proxies` 后仍然 400，
+日志报 `A request from a reverse proxy was received from 127.0.0.1, but your HTTP integration is not set-up for reverse proxies`。
+
+原因是 2026.11 把 http 配置迁移到了 `.storage/http`，文件里带 `"yaml_migration_done": true`，
+此后 YAML 段不再生效（新版用 `probatio.Schema` 校验，不报错，静默忽略）。直接改 storage 的 `stable` 节点：
+
+```json
+"use_x_forwarded_for": true,
+"trusted_proxies": ["127.0.0.1", "::1", "192.168.31.0/24", "172.30.32.0/23"]
+```
+
+重启 HA 后 400 消失。`127.0.0.1` 必填——host 网络的 cloudflared 连 `127.0.0.1:8123`，HA 看到的对端就是它。
+
+**4. 注意**
+
+- Cloudflare 免费版请求体上限 100MB，HA 大备份上传会失败，备份走内网。
+- 代理生效后 `ip_ban` 看到的是真实客户端 IP（来自 `X-Forwarded-For`），不要再按内网 IP 做白名单。
+- 80/443 被 UGOS 系统 nginx 占用且会被系统升级覆盖，不要往那里加站点；内网反代用 Lucky（16601 端口 Web UI，配置为加密 `.lkcf`，只能界面改）。
+
+
 ## Thank you
 - [lyylyylyylyy](https://github.com/lyylyylyylyy): PR [#30](https://github.com/CubicPill/china_southern_power_grid_stat/pull/30) 短信验证码登录支持
 
