@@ -295,6 +295,14 @@ docker compose -f deploy/docker-compose.yml up -d
 
 `custom_components/` 内的第三方集成（xiaomi_home、midea_ac_lan 等）属于 HACS 组件，升级请走 HACS，不要直接改这里的副本。
 
+## 8. 科技感首页与主题
+
+- [`config/www/tech/tech-home.js`](config/www/tech/tech-home.js)：`custom:tech-home`，纯原生自绘。深空底 + 网格 + 扫描线 + 玻璃面板，包含电费统计、四个房间（气候/电视/风扇）、净水环形仪表、快捷入口；点击实体弹 more-info，点击芯片直接开关。
+- [`config/themes/tech_dark.yaml`](config/themes/tech_dark.yaml)：赛博青暗色主题，通过 `frontend.themes` 加载。主题值必须全部是字符串，写成列表会报 `value should be a string at 'success-color'` 并导致整组主题加载失败。
+- 启用方式：个人资料 → 主题 → `tech_dark`（每个浏览器保存一次）。也可调用 `frontend.set_theme` 全局临时生效，但重启后不持久。
+
+设计参考（只借鉴思路，未引入依赖）：Mushroom 的磁贴与芯片、Bubble Card 的玻璃拟态、card-mod 的霓虹描边、ApexCharts 系的等宽数字与深色数据面板。
+
 ## Thank you
 - [lyylyylyylyy](https://github.com/lyylyylyylyy): PR [#30](https://github.com/CubicPill/china_southern_power_grid_stat/pull/30) 短信验证码登录支持
 

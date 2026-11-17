@@ -1,0 +1,60 @@
+tech_dark:
+  # 主色：赛博青
+  primary-color: "#22d3ee"
+  accent-color: "#22d3ee"
+  dark-primary-color: "#0e7490"
+  light-primary-color: "#67e8f9"
+
+  # 底色：深空
+  primary-background-color: "#050a14"
+  secondary-background-color: "#070f1d"
+  card-background-color: "rgba(13, 22, 38, 0.92)"
+  ha-card-background: "rgba(13, 22, 38, 0.92)"
+  app-header-background-color: "rgba(5, 10, 20, 0.92)"
+  app-header-text-color: "#dbeafe"
+  sidebar-background-color: "#060d1a"
+  sidebar-icon-color: "#64809f"
+  sidebar-text-color: "#b6cbe3"
+  sidebar-selected-icon-color: "#22d3ee"
+  sidebar-selected-text-color: "#e0f2fe"
+
+  # 文本与描边
+  primary-text-color: "#dbeafe"
+  secondary-text-color: "#7f9cbb"
+  disabled-text-color: "#41556d"
+  divider-color: "rgba(56, 189, 248, 0.16)"
+  ha-card-border-color: "rgba(56, 189, 248, 0.18)"
+  ha-card-border-width: "1px"
+  ha-card-border-radius: "14px"
+  ha-card-box-shadow: "0 8px 26px rgba(0, 0, 0, 0.45)"
+  ha-card-backdrop-filter: "blur(8px)"
+
+  # 状态色
+  state-icon-color: "#64809f"
+  state-icon-active-color: "#22d3ee"
+  paper-item-icon-color: "#64809f"
+  paper-item-icon-active-color: "#22d3ee"
+  state-active-color: "#22d3ee"
+  success-color: "#34d399"
+  warning-color: "#fbbf24"
+  error-color: "#f87171"
+  info-color: "#38bdf8"
+
+  # 控件
+  slider-color: "#22d3ee"
+  slider-secondary-color: "rgba(34, 211, 238, 0.2)"
+  switch-checked-color: "#22d3ee"
+  switch-unchecked-button-color: "#41556d"
+  mode-switch-icon-color: "#22d3ee"
+  input-fill-color: "rgba(13, 22, 38, 0.9)"
+  input-ink-color: "#dbeafe"
+  input-label-ink-color: "#64809f"
+  mdc-theme-primary: "#22d3ee"
+  mdc-theme-secondary: "#22d3ee"
+  mdc-theme-surface: "#0b1524"
+  mdc-theme-on-surface: "#dbeafe"
+  mdc-theme-background: "#050a14"
+
+  # 表格 / 曲线
+  table-row-background-color: "#0b1524"
+  table-row-alternative-background-color: "#081120"

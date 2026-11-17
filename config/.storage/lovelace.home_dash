@@ -1,337 +1,145 @@
 {
-  "version": 1,
-  "minor_version": 1,
-  "key": "lovelace.home_dash",
-  "data": {
-    "config": {
-      "title": "家居",
-      "views": [
-        {
-          "title": "总览",
-          "path": "overview",
-          "icon": "mdi:home-heart",
-          "type": "sections",
-          "max_columns": 3,
-          "sections": [
-            {
-              "type": "grid",
-              "cards": [
-                {
-                  "type": "heading",
-                  "heading": "客厅",
-                  "icon": "mdi:sofa"
-                },
-                {
-                  "type": "tile",
-                  "entity": "climate.210006722454675_climate",
-                  "features": [
-                    {
-                      "type": "climate-hvac-modes"
-                    }
-                  ]
-                },
-                {
-                  "type": "tile",
-                  "entity": "switch.chuang_wei_dian_shi",
-                  "icon": "mdi:television",
-                  "name": "创维电视"
-                },
-                {
-                  "type": "heading",
-                  "heading": "厨房",
-                  "icon": "mdi:stove"
-                },
-                {
-                  "type": "tile",
-                  "entity": "fan.211106238582802_fan",
-                  "icon": "mdi:fan"
-                }
-              ]
-            },
-            {
-              "type": "grid",
-              "cards": [
-                {
-                  "type": "heading",
-                  "heading": "书房",
-                  "icon": "mdi:desk"
-                },
-                {
-                  "type": "tile",
-                  "entity": "climate.208907210826263_climate",
-                  "features": [
-                    {
-                      "type": "climate-hvac-modes"
-                    }
-                  ]
-                },
-                {
-                  "type": "heading",
-                  "heading": "次卧",
-                  "icon": "mdi:bed"
-                },
-                {
-                  "type": "tile",
-                  "entity": "climate.211106234581522_climate",
-                  "features": [
-                    {
-                      "type": "climate-hvac-modes"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "grid",
-              "cards": [
-                {
-                  "type": "heading",
-                  "heading": "净水器",
-                  "icon": "mdi:water"
-                },
-                {
-                  "type": "gauge",
-                  "entity": "sensor.210006722454684_out_tds",
-                  "name": "纯水 TDS",
-                  "unit": "ppm",
-                  "min": 0,
-                  "max": 300,
-                  "needle": false,
-                  "severity": {
-                    "green": 0,
-                    "yellow": 80,
-                    "red": 200
-                  }
-                },
-                {
-                  "type": "gauge",
-                  "entity": "sensor.210006722454684_in_tds",
-                  "name": "原水 TDS",
-                  "unit": "ppm",
-                  "min": 0,
-                  "max": 600,
-                  "needle": false,
-                  "severity": {
-                    "green": 0,
-                    "yellow": 200,
-                    "red": 400
-                  }
-                },
-                {
-                  "type": "gauge",
-                  "entity": "sensor.210006722454684_life1",
-                  "name": "PCB 滤芯剩余",
-                  "unit": "%",
-                  "min": 0,
-                  "max": 100,
-                  "needle": false,
-                  "severity": {
-                    "red": 0,
-                    "yellow": 20,
-                    "green": 60
-                  }
-                },
-                {
-                  "type": "gauge",
-                  "entity": "sensor.210006722454684_life2",
-                  "name": "RO 滤芯剩余",
-                  "unit": "%",
-                  "min": 0,
-                  "max": 100,
-                  "needle": false,
-                  "severity": {
-                    "red": 0,
-                    "yellow": 20,
-                    "green": 60
-                  }
-                },
-                {
-                  "type": "tile",
-                  "entity": "sensor.pcblu_xin_yu_ji_sheng_yu_tian_shu",
-                  "icon": "mdi:calendar-clock"
-                },
-                {
-                  "type": "tile",
-                  "entity": "sensor.rolu_xin_yu_ji_sheng_yu_tian_shu",
-                  "icon": "mdi:calendar-clock"
-                }
-              ]
-            },
-            {
-              "type": "grid",
-              "cards": [
-                {
-                  "type": "heading",
-                  "heading": "用电",
-                  "icon": "mdi:lightning-bolt"
-                },
-                {
-                  "type": "tile",
-                  "entity": "sensor.csgaccount_0306130240952594_0306130240952594_this_month_total_usage",
-                  "icon": "mdi:calendar-month",
-                  "name": "本月用电",
-                  "tap_action": {
-                    "action": "navigate",
-                    "navigation_path": "/csg-power"
-                  }
-                },
-                {
-                  "type": "tile",
-                  "entity": "sensor.csgaccount_0306130240952594_0306130240952594_latest_day_kwh",
-                  "icon": "mdi:calendar-today",
-                  "name": "最近一天",
-                  "tap_action": {
-                    "action": "navigate",
-                    "navigation_path": "/csg-power"
-                  }
-                },
-                {
-                  "type": "tile",
-                  "entity": "sensor.csgaccount_0306130240952594_0306130240952594_this_year_total_cost",
-                  "icon": "mdi:currency-cny",
-                  "name": "本年电费",
-                  "tap_action": {
-                    "action": "navigate",
-                    "navigation_path": "/csg-power"
-                  }
-                },
-                {
-                  "type": "tile",
-                  "entity": "sensor.csgaccount_0306130240952594_0306130240952594_balance",
-                  "icon": "mdi:wallet",
-                  "name": "账户余额",
-                  "tap_action": {
-                    "action": "navigate",
-                    "navigation_path": "/csg-power"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": "3D 户型",
-          "path": "plan",
-          "icon": "mdi:home-city",
-          "type": "panel",
-          "cards": [
-            {
-              "type": "custom:floor3d-card",
-              "height": 620
-            }
-          ]
-        },
-        {
-          "title": "平面",
-          "path": "plan-2d",
-          "icon": "mdi:floor-plan",
-          "type": "panel",
-          "cards": [
-            {
-              "type": "picture-elements",
-              "image": "/local/floorplan.png",
-              "elements": [
-                {
-                  "type": "state-icon",
-                  "entity": "climate.208907210826263_climate",
-                  "icon": "mdi:air-conditioner",
-                  "state_color": true,
-                  "style": {
-                    "left": "35.5%",
-                    "top": "36%",
-                    "--mdc-icon-size": "34px"
-                  },
-                  "tap_action": {
-                    "action": "toggle"
-                  }
-                },
-                {
-                  "type": "state-icon",
-                  "entity": "climate.210006722454675_climate",
-                  "icon": "mdi:air-conditioner",
-                  "state_color": true,
-                  "style": {
-                    "left": "45.6%",
-                    "top": "71%",
-                    "--mdc-icon-size": "34px"
-                  },
-                  "tap_action": {
-                    "action": "toggle"
-                  }
-                },
-                {
-                  "type": "state-icon",
-                  "entity": "switch.chuang_wei_dian_shi",
-                  "icon": "mdi:television",
-                  "style": {
-                    "left": "79.4%",
-                    "top": "76.5%",
-                    "--mdc-icon-size": "32px"
-                  },
-                  "tap_action": {
-                    "action": "toggle"
-                  }
-                },
-                {
-                  "type": "state-icon",
-                  "entity": "climate.211106234581522_climate",
-                  "icon": "mdi:air-conditioner",
-                  "state_color": true,
-                  "style": {
-                    "left": "83%",
-                    "top": "40%",
-                    "--mdc-icon-size": "34px"
-                  },
-                  "tap_action": {
-                    "action": "toggle"
-                  }
-                },
-                {
-                  "type": "state-icon",
-                  "entity": "fan.211106238582802_fan",
-                  "icon": "mdi:fan",
-                  "state_color": true,
-                  "style": {
-                    "left": "16.5%",
-                    "top": "54%",
-                    "--mdc-icon-size": "32px"
-                  },
-                  "tap_action": {
-                    "action": "toggle"
-                  }
-                },
-                {
-                  "type": "state-label",
-                  "entity": "sensor.210006722454684_out_tds",
-                  "prefix": "纯水 ",
-                  "suffix": " ppm",
-                  "style": {
-                    "left": "25%",
-                    "top": "67%",
-                    "font-size": "12px",
-                    "font-weight": "600",
-                    "color": "#8fd6ff",
-                    "text-shadow": "0 1px 4px rgba(0,0,0,0.8)",
-                    "white-space": "nowrap"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "title": "简报",
-          "path": "brief",
-          "icon": "mdi:newspaper-variant-outline",
-          "type": "panel",
-          "cards": [
-            {
-              "type": "markdown",
-              "content": "## 今日简报 · {{ states('sensor.mei_ri_jian_bao') }}\n\n{% for i in (state_attr('sensor.mei_ri_jian_bao', 'news') or [])[:15] %}{{ loop.index }}. {{ i }}\n{% endfor %}\n---\n\n### 微博热搜\n\n{% for r in (state_attr('sensor.wei_bo_re_sou', 'data') or [])[:10] %}{{ loop.index }}. {{ r.title }}\n{% endfor %}\n---\n\n### 历史上的今天\n\n{% for r in (state_attr('sensor.li_shi_shang_de_jin_tian', 'items') or [])[:5] %}- **{{ r.year }}** · {{ r.title }}\n{% endfor %}"
-            }
-          ]
-        }
-      ]
-    }
-  }
+    "version":  1,
+    "minor_version":  1,
+    "key":  "lovelace.home_dash",
+    "data":  {
+                 "config":  {
+                                "title":  "家居",
+                                "views":  [
+                                              {
+                                                  "title":  "总览",
+                                                  "path":  "overview",
+                                                  "icon":  "mdi:home-heart",
+                                                  "type":  "panel",
+                                                  "cards":  [
+                                                                {
+                                                                    "type":  "custom:tech-home"
+                                                                }
+                                                            ]
+                                              },
+                                              {
+                                                  "title":  "3D 户型",
+                                                  "path":  "plan",
+                                                  "icon":  "mdi:home-city",
+                                                  "type":  "panel",
+                                                  "cards":  [
+                                                                {
+                                                                    "type":  "custom:floor3d-card",
+                                                                    "height":  620
+                                                                }
+                                                            ]
+                                              },
+                                              {
+                                                  "title":  "平面",
+                                                  "path":  "plan-2d",
+                                                  "icon":  "mdi:floor-plan",
+                                                  "type":  "panel",
+                                                  "cards":  [
+                                                                {
+                                                                    "type":  "picture-elements",
+                                                                    "image":  "/local/floorplan.png",
+                                                                    "elements":  [
+                                                                                     {
+                                                                                         "type":  "state-icon",
+                                                                                         "entity":  "climate.208907210826263_climate",
+                                                                                         "icon":  "mdi:air-conditioner",
+                                                                                         "state_color":  true,
+                                                                                         "style":  {
+                                                                                                       "left":  "35.5%",
+                                                                                                       "top":  "36%",
+                                                                                                       "--mdc-icon-size":  "34px"
+                                                                                                   },
+                                                                                         "tap_action":  {
+                                                                                                            "action":  "toggle"
+                                                                                                        }
+                                                                                     },
+                                                                                     {
+                                                                                         "type":  "state-icon",
+                                                                                         "entity":  "climate.210006722454675_climate",
+                                                                                         "icon":  "mdi:air-conditioner",
+                                                                                         "state_color":  true,
+                                                                                         "style":  {
+                                                                                                       "left":  "45.6%",
+                                                                                                       "top":  "71%",
+                                                                                                       "--mdc-icon-size":  "34px"
+                                                                                                   },
+                                                                                         "tap_action":  {
+                                                                                                            "action":  "toggle"
+                                                                                                        }
+                                                                                     },
+                                                                                     {
+                                                                                         "type":  "state-icon",
+                                                                                         "entity":  "switch.chuang_wei_dian_shi",
+                                                                                         "icon":  "mdi:television",
+                                                                                         "style":  {
+                                                                                                       "left":  "79.4%",
+                                                                                                       "top":  "76.5%",
+                                                                                                       "--mdc-icon-size":  "32px"
+                                                                                                   },
+                                                                                         "tap_action":  {
+                                                                                                            "action":  "toggle"
+                                                                                                        }
+                                                                                     },
+                                                                                     {
+                                                                                         "type":  "state-icon",
+                                                                                         "entity":  "climate.211106234581522_climate",
+                                                                                         "icon":  "mdi:air-conditioner",
+                                                                                         "state_color":  true,
+                                                                                         "style":  {
+                                                                                                       "left":  "83%",
+                                                                                                       "top":  "40%",
+                                                                                                       "--mdc-icon-size":  "34px"
+                                                                                                   },
+                                                                                         "tap_action":  {
+                                                                                                            "action":  "toggle"
+                                                                                                        }
+                                                                                     },
+                                                                                     {
+                                                                                         "type":  "state-icon",
+                                                                                         "entity":  "fan.211106238582802_fan",
+                                                                                         "icon":  "mdi:fan",
+                                                                                         "state_color":  true,
+                                                                                         "style":  {
+                                                                                                       "left":  "16.5%",
+                                                                                                       "top":  "54%",
+                                                                                                       "--mdc-icon-size":  "32px"
+                                                                                                   },
+                                                                                         "tap_action":  {
+                                                                                                            "action":  "toggle"
+                                                                                                        }
+                                                                                     },
+                                                                                     {
+                                                                                         "type":  "state-label",
+                                                                                         "entity":  "sensor.210006722454684_out_tds",
+                                                                                         "prefix":  "纯水 ",
+                                                                                         "suffix":  " ppm",
+                                                                                         "style":  {
+                                                                                                       "left":  "25%",
+                                                                                                       "top":  "67%",
+                                                                                                       "font-size":  "12px",
+                                                                                                       "font-weight":  "600",
+                                                                                                       "color":  "#8fd6ff",
+                                                                                                       "text-shadow":  "0 1px 4px rgba(0,0,0,0.8)",
+                                                                                                       "white-space":  "nowrap"
+                                                                                                   }
+                                                                                     }
+                                                                                 ]
+                                                                }
+                                                            ]
+                                              },
+                                              {
+                                                  "title":  "简报",
+                                                  "path":  "brief",
+                                                  "icon":  "mdi:newspaper-variant-outline",
+                                                  "type":  "panel",
+                                                  "cards":  [
+                                                                {
+                                                                    "type":  "markdown",
+                                                                    "content":  "## 今日简报 · {{ states(\u0027sensor.mei_ri_jian_bao\u0027) }}\n\n{% for i in (state_attr(\u0027sensor.mei_ri_jian_bao\u0027, \u0027news\u0027) or [])[:15] %}{{ loop.index }}. {{ i }}\n{% endfor %}\n---\n\n### 微博热搜\n\n{% for r in (state_attr(\u0027sensor.wei_bo_re_sou\u0027, \u0027data\u0027) or [])[:10] %}{{ loop.index }}. {{ r.title }}\n{% endfor %}\n---\n\n### 历史上的今天\n\n{% for r in (state_attr(\u0027sensor.li_shi_shang_de_jin_tian\u0027, \u0027items\u0027) or [])[:5] %}- **{{ r.year }}** · {{ r.title }}\n{% endfor %}"
+                                                                }
+                                                            ]
+                                              }
+                                          ]
+                            }
+             }
 }
