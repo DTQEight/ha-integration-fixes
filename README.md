@@ -318,6 +318,28 @@ ingress:
 
 改完 `docker restart cloudflared`，日志出现 `Registered tunnel connection` 即成功。
 
+当前全部入口（均为 host 网络回环 + Cloudflare 代理）：
+
+| 域名 | 服务 | 本地端口 |
+|---|---|---|
+| `ha.example.com` | Home Assistant | 8123 |
+| `2m.example.com` | 2bt0 资源库 | 8000 |
+| `cf-moviepilot.example.com` | MoviePilot | 3000 |
+| `cf-115.example.com` | 115transfer | 3698 |
+| `cf-log.example.com` | 日志收集 | 5000 |
+| `jellyfin.example.com` | Jellyfin | 8096 |
+| `emby.example.com` | Emby | 18097 |
+| `iptv.example.com` | IPTV 源站 | 1905 |
+| `iptv-manager.example.com` | IPTV 管理后台 | 8080 |
+| `litepan.example.com` | LitePan | 5211 |
+| `net.example.com` | Net Dashboard | 18080 |
+| `wxchat.example.com` | 微信代理 | 3610 |
+| `qb.example.com` | qBittorrent / VueTorrent | 8091 |
+| `tr.example.com` | Transmission | 9091 |
+| `lucky.example.com` | Lucky 管理端 | 16601 |
+
+未接入：natfrp（7102/6789，FRP 服务端）、MoviePilot API（3001）、Lucky HTTPS（16666）、go2rtc（1984）、OpenClaw（38789）、LinkStar（3333）、60s（4399，HA 已聚合）、RTSP（8554/8555）。
+
 **2. DNS**：用隧道自带的 origin cert 建 CNAME，不必去后台手点
 
 ```bash
