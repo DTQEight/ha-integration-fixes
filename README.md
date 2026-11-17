@@ -303,6 +303,34 @@ docker compose -f deploy/docker-compose.yml up -d
 
 设计参考（只借鉴思路，未引入依赖）：Mushroom 的磁贴与芯片、Bubble Card 的玻璃拟态、card-mod 的霓虹描边、ApexCharts 系的等宽数字与深色数据面板。
 
+### 米家设备区块
+
+卡片中部新增 `MI HOME / 米家设备` 网格，数据来自 `xiaomi_home` 集成：
+
+- 11 个磁贴：空调、吸顶灯、电脑插座、小风扇、NAS 插座、摄像机、主卧风扇、小爱音箱、热水器、智能插排、玄关灯
+- 开关/灯/风扇类点击即开关；空调、热水器、音箱点击打开 more-info
+- 开启态：图标发光 + 青色描边 + 右侧状态点；关闭态统一灰显
+- 状态文本按域区分：`ON/OFF`、空调显示模式与当前温度、热水器显示水温、音箱显示播放状态
+- 响应式：4 列 → 1100px 以下 3 列 → 760px 以下 2 列
+
+新增设备只需在 `tech-home.js` 顶部的 `MI` 数组追加一项（`kind` 取 `switch` / `light` / `fan` / `climate` / `media_player` / `water_heater`），并把 `extra_module_url` 的 `?v=` 递增。
+
+### 表单输入框看不清
+
+深色主题下，设备命名、集成配置等对话框的输入框会变成白底浅字。原因是这些 `ha-textfield` / `ha-select` 读的是另一组变量，只设 `primary-text-color` 不够。`tech_dark.yaml` 里补齐：
+
+```yaml
+input-fill-color: "rgba(148, 163, 184, 0.10)"
+input-ink-color: "#e2e8f0"
+input-label-ink-color: "#94a3b8"
+mdc-text-field-fill-color: "rgba(148, 163, 184, 0.10)"
+mdc-text-field-ink-color: "#e2e8f0"
+mdc-select-fill-color: "rgba(148, 163, 184, 0.10)"
+mdc-select-ink-color: "#e2e8f0"
+text-primary-color: "#e2e8f0"
+mdc-theme-on-surface: "#e2e8f0"
+```
+
 ## 9. 反向代理（Cloudflare Tunnel）
 
 公网访问走 Cloudflare Tunnel，不开放路由器端口：`https://ha.example.com` → 本机 `cloudflared`（host 网络）→ `http://127.0.0.1:8123`。
@@ -375,6 +403,42 @@ docker run --rm -u 0 \
 - 代理生效后 `ip_ban` 看到的是真实客户端 IP（来自 `X-Forwarded-For`），不要再按内网 IP 做白名单。
 - 80/443 被 UGOS 系统 nginx 占用且会被系统升级覆盖，不要往那里加站点；内网反代用 Lucky（16601 端口 Web UI，配置为加密 `.lkcf`，只能界面改）。
 
+
+## 10. 小米 Home 集成 OAuth 回调失败
+
+**现象一**：完成小米账号授权后，浏览器跳回 `http://homeassistant.local:8123/api/webhook/...`，页面显示 `HTTP ERROR 502`，HA 日志里没有任何 webhook 记录。
+
+**现象二**：把 `OAUTH_REDIRECT_URL` 改成内网 IP，小米授权页直接报 `invalid redirect uri`。
+
+**根因**（两层）：
+
+1. `custom_components/xiaomi_home/miot/const.py:142` 把回调写死为 `http://homeassistant.local:8123`，`config_flow.py:306` 用 `vol.In([OAUTH_REDIRECT_URL])` 渲染成单选，所以界面上「选不了」、也不能改。
+2. 小米云端对该 `client_id` 校验回调地址，**只认这个值**，换成 IP 立即 `invalid redirect uri`。
+
+所以只能让 `homeassistant.local` 真正可达。而 502 之所以出现，是因为请求根本没到 HA：
+
+- 客户端系统代理（如 Clash `127.0.0.1:7890`）会截走这个域名；Windows 的默认绕过项 `<local>` 只匹配**不含点**的主机名，`homeassistant.local` 含点，照样走代理，代理解析不了就返回 502。
+- 同时局域网 mDNS 不工作时，该名字本身也解析不出来。
+
+**修复**（客户端 + HA 各一步）：
+
+```powershell
+# 1. 客户端 hosts（管理员）
+<HA_IP> homeassistant.local
+
+# 2. 系统代理绕过列表追加
+ProxyOverride += ";*.local"
+```
+
+```yaml
+# 3. HA 内网地址固定为 IP，避免其它集成继续生成 .local 链接
+# .storage/core.config → data.internal_url
+internal_url: "http://<HA_IP>:8123"
+```
+
+验证：`curl http://homeassistant.local:8123/` 返回 200 且耗时很短（说明走直连没走代理）。
+
+**关于手机上添加**：手机改不了 hosts，只能依赖 mDNS（Android 一般可用，iOS 走 Bonjour）。建议先在电脑上把集成配好，手机只做使用方。
 
 ## Thank you
 - [lyylyylyylyy](https://github.com/lyylyylyylyy): PR [#30](https://github.com/CubicPill/china_southern_power_grid_stat/pull/30) 短信验证码登录支持

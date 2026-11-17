@@ -37,6 +37,20 @@ const NAV = [
   { label: "地图", icon: "mdi:map", path: "/map" },
 ];
 
+const MI = [
+  { name: "客厅空调", entity: "climate.xiaomi_cn_270045878_ma1", icon: "mdi:air-conditioner", kind: "climate" },
+  { name: "吸顶灯", entity: "light.lemesh_cn_2079863674_wy0d02_s_2_light", icon: "mdi:ceiling-light", kind: "light" },
+  { name: "电脑", entity: "switch.chuangmi_cn_472610161_212a01_on_p_2_1", icon: "mdi:desktop-tower-monitor", kind: "switch" },
+  { name: "小风扇", entity: "switch.cuco_cn_697088193_v3_on_p_2_1", icon: "mdi:fan", kind: "switch" },
+  { name: "NAS 插座", entity: "switch.cuco_cn_846002010_v3_on_p_2_1", icon: "mdi:power-socket-cn", kind: "switch" },
+  { name: "摄像机", entity: "switch.chuangmi_cn_1184756078_81ac1_on_p_2_1", icon: "mdi:cctv", kind: "switch" },
+  { name: "主卧风扇", entity: "fan.jipin_cn_747620199_f004_s_2_fan", icon: "mdi:fan", kind: "fan" },
+  { name: "小爱音箱", entity: "media_player.xiaomi_cn_500587584_lx06", icon: "mdi:speaker-wireless", kind: "media_player" },
+  { name: "热水器", entity: "water_heater.macro_cn_x_14586_647599939_111110001000591788_jsq01_s_2_water_heater", icon: "mdi:water-boiler", kind: "water_heater" },
+  { name: "智能插排", entity: "switch.qmi_cn_235100463_psv1_on_p_2_1", icon: "mdi:power-strip", kind: "switch" },
+  { name: "玄关灯", entity: "switch.zimi_cn_1058009483_dhkg01_on_p_2_1", icon: "mdi:light-switch", kind: "switch" },
+];
+
 const CSS = `
   :host { display: block; }
   * { box-sizing: border-box; }
@@ -147,6 +161,31 @@ const CSS = `
   .chip.on { color: var(--amber); border-color: rgba(251, 191, 36, .45); background: rgba(251, 191, 36, .08); }
   .chip:hover { border-color: rgba(34, 211, 238, .45); color: #e0f2fe; }
 
+  .mi { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .mi-tile {
+    position: relative; display: flex; align-items: center; gap: 10px; padding: 11px 12px;
+    border-radius: 12px; cursor: pointer; background: var(--panel);
+    border: 1px solid var(--line); overflow: hidden;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .mi-tile:hover { transform: translateY(-2px); border-color: rgba(34, 211, 238, .45); box-shadow: 0 8px 22px rgba(8, 145, 178, .16); }
+  .mi-tile .ico {
+    width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: 0 0 auto;
+    color: var(--muted); background: rgba(148, 163, 184, .07); border: 1px solid rgba(100, 128, 159, .22);
+    --mdc-icon-size: 19px; transition: all .2s ease;
+  }
+  .mi-tile.on .ico {
+    color: var(--cyan); background: rgba(34, 211, 238, .14); border-color: rgba(34, 211, 238, .5);
+    box-shadow: 0 0 16px rgba(34, 211, 238, .3), inset 0 0 10px rgba(34, 211, 238, .2);
+  }
+  .mi-tile .info { min-width: 0; flex: 1; }
+  .mi-tile .nm { font-size: 11px; letter-spacing: .1em; color: #dbeafe; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mi-tile .st { margin-top: 3px; font-size: 9px; letter-spacing: .14em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mi-tile.on .st { color: var(--cyan); }
+  .mi-tile .pwr { width: 6px; height: 6px; border-radius: 50%; background: #334155; flex: 0 0 auto; }
+  .mi-tile.on .pwr { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  .mi-tile.on { border-color: rgba(34, 211, 238, .38); background: linear-gradient(150deg, rgba(34, 211, 238, .1), rgba(13, 22, 38, .72)); }
+
   .water { margin-top: 10px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .ring { padding: 12px 8px; border-radius: 14px; text-align: center; background: var(--panel); border: 1px solid var(--line); cursor: pointer; transition: border-color .18s ease, transform .18s ease; }
   .ring:hover { transform: translateY(-2px); border-color: rgba(34, 211, 238, .45); }
@@ -168,9 +207,11 @@ const CSS = `
   }
   .nav:hover { background: rgba(34, 211, 238, .14); border-color: rgba(34, 211, 238, .6); box-shadow: 0 0 18px rgba(34, 211, 238, .25); }
 
+  @media (max-width: 1100px) { .mi { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 760px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
     .rooms { grid-template-columns: 1fr; }
+    .mi { grid-template-columns: repeat(2, 1fr); }
     .water { grid-template-columns: repeat(2, 1fr); }
     .clock b { font-size: 24px; }
   }
@@ -266,6 +307,9 @@ class TechHomeCard extends HTMLElement {
         <div class="sect">ROOMS / 房间</div>
         <div class="rooms" id="rooms"></div>
 
+        <div class="sect">MI HOME / 米家设备</div>
+        <div class="mi" id="mi"></div>
+
         <div class="sect">WATER PURIFIER / 净水</div>
         <div class="water" id="water"></div>
 
@@ -325,6 +369,25 @@ class TechHomeCard extends HTMLElement {
         mode: el.querySelector(`#room-mode-${i}`),
         chips,
       };
+    });
+
+    const miEl = this.shadowRoot.getElementById("mi");
+    this._refs.mi = MI.map((d, i) => {
+      const el = document.createElement("div");
+      el.className = "mi-tile";
+      el.innerHTML = `
+        <div class="ico"><ha-icon icon="${d.icon}"></ha-icon></div>
+        <div class="info">
+          <div class="nm">${d.name}</div>
+          <div class="st" id="mi-st-${i}">--</div>
+        </div>
+        <span class="pwr"></span>`;
+      el.addEventListener("click", () => {
+        if (d.kind === "switch" || d.kind === "light" || d.kind === "fan") this._toggle(d.entity);
+        else this._moreInfo(d.entity);
+      });
+      miEl.appendChild(el);
+      return { el, st: el.querySelector(`#mi-st-${i}`) };
     });
 
     const waterEl = this.shadowRoot.getElementById("water");
@@ -394,6 +457,35 @@ class TechHomeCard extends HTMLElement {
         const st = this._state(c.entity);
         c.el.classList.toggle("on", !!st && st.state === "on");
       });
+    });
+
+    MI.forEach((d, i) => {
+      const ref = this._refs.mi[i];
+      if (!ref) return;
+      const st = this._state(d.entity);
+      const s = st && st.state !== "unavailable" && st.state !== "unknown" ? st.state : null;
+      let on = false;
+      let label = "离线";
+      if (s) {
+        if (d.kind === "climate") {
+          on = s !== "off";
+          const cur = st.attributes ? st.attributes.current_temperature : null;
+          label = on ? `${s.toUpperCase()}${cur == null ? "" : " · " + Number(cur).toFixed(1) + "°C"}` : "OFF";
+        } else if (d.kind === "media_player") {
+          on = s === "playing";
+          const map = { playing: "PLAYING", paused: "PAUSED", idle: "IDLE", off: "OFF", standby: "STANDBY" };
+          label = map[s] || s.toUpperCase();
+        } else if (d.kind === "water_heater") {
+          on = s !== "off";
+          const cur = st.attributes ? st.attributes.current_temperature : null;
+          label = on && cur != null ? `${Number(cur).toFixed(0)}°C` : on ? "ON" : "OFF";
+        } else {
+          on = s === "on";
+          label = on ? "ON" : "OFF";
+        }
+      }
+      ref.el.classList.toggle("on", on);
+      ref.st.textContent = label;
     });
 
     WATER.forEach((w, i) => {
