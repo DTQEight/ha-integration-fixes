@@ -25,6 +25,13 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
+# 简报推送去重：记录最后一次成功推送的日期
+input_datetime:
+  brief_last_push:
+    name: 简报最后推送
+    has_date: true
+    has_time: false
+
 # 小爱同学(巴法云 tv001) -> 电视 adb 控制
 shell_command:
   tv_wake: "python /config/scripts/wake_tv.py wake"
@@ -115,7 +122,7 @@ command_line:
       command_timeout: 120
 rest:
   - resource: http://127.0.0.1:4399/v2/60s
-    scan_interval: 21600
+    scan_interval: 900
     sensor:
       - name: "每日简报"
         unique_id: daily_brief_60s

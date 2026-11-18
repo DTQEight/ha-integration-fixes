@@ -90,11 +90,19 @@
           【滤芯提醒】{% set items = [('sensor.210006722454684_life1', 'PCB滤芯'), ('sensor.210006722454684_life2', 'RO滤芯'), ('sensor.210006722454684_life3', '滤芯3')] %}{% set ns = namespace(p=[]) %}{% for entity, label in items %}{% set v = states(entity) | float(0) %}{% if 0 < v < 10 %}{% set ns.p = ns.p + [label ~ '剩余' ~ (v | int) ~ '%'] %}{% endif %}{% endfor %}{{ ns.p | join('，') }}，请及时更换。
 - id: daily_brief_60s_push
   alias: "每日简报推送（60s -> 企业微信）"
-  description: "每天 07:30 分 4 条文本推送：要闻 1-8、要闻 9-15、微博热搜、历史上的今天"
+  description: "简报日期变成当天后立即推送；07:30 兜底补推。同一天只推一次"
   mode: single
+  max_exceeded: silent
   triggers:
+    - trigger: state
+      entity_id: sensor.mei_ri_jian_bao
     - trigger: time
       at: "07:30:00"
+  conditions:
+    - condition: template
+      value_template: "{{ states('sensor.mei_ri_jian_bao') == now().strftime('%Y-%m-%d') }}"
+    - condition: template
+      value_template: "{{ states('input_datetime.brief_last_push')[:10] != now().strftime('%Y-%m-%d') }}"
   actions:
     - action: rest_command.wecom_notify
       data:
@@ -108,3 +116,8 @@
     - action: rest_command.wecom_notify
       data:
         message: "【历史上的今天 · {{ states('sensor.li_shi_shang_de_jin_tian') }}】\n{% for r in (state_attr('sensor.li_shi_shang_de_jin_tian', 'items') or [])[:5] %}{{ r.year }} · {{ r.title }}\n{% endfor %}"
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.brief_last_push
+      data:
+        date: "{{ now().strftime('%Y-%m-%d') }}"

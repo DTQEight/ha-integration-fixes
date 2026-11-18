@@ -245,7 +245,16 @@ cp -r custom_components/map_tiles /path/to/config/custom_components/
 ## 5. 60s 资讯接入 HA
 
 把 [vikiboss/60s](https://github.com/vikiboss/60s) 全部接口接进 HA：本地容器 `vikiboss/60s`（端口 4399）做数据源，
-`sixy.py` 分 8 组聚合，8 个 `command_line` 传感器承载，前端用自绘卡片展示，每天 07:30 推送企微。
+`sixy.py` 分 8 组聚合，8 个 `command_line` 传感器承载，前端用自绘卡片展示。
+
+企微推送改为**等上游出当天简报再推**，而不是固定 07:30 推昨天的内容：
+
+- `每日简报`（rest）轮询从 6 小时缩到 15 分钟，上游一更新就能感知
+- 自动化触发器：`sensor.mei_ri_jian_bao` 状态变化 + 07:30 兜底
+- 两个条件：简报日期 = 今天、`input_datetime.brief_last_push` 不是今天 → 同一天只推一次
+- 推送完成后把当天日期写回 `input_datetime.brief_last_push`
+
+上游一般凌晨 0~8 点发布，今天（11-18）到 11 点仍未更新，所以卡片里还是 17 号的内容。
 
 关键点：
 
@@ -275,7 +284,7 @@ height: 560
 | 内容 | 说明 |
 |---|---|
 | `configuration.yaml` | 全部集成配置：rest / command_line / template / shell_command / rest_command / frontend / lovelace / http |
-| `automations.yaml` | 5 条自动化：小爱控制电视、净水器日报、设备开关通知、滤芯不足提醒、07:30 简报推送 |
+| `automations.yaml` | 5 条自动化：小爱控制电视、净水器日报、设备开关通知、滤芯不足提醒、简报更新即推送 |
 | `scripts.yaml` / `scenes.yaml` | 脚本与场景 |
 | `csg-dashboard.yaml` | 用电仪表盘（旧版 YAML 模式） |
 | `scripts/*.py` | `sixy.py` 聚合、`wake_tv.py` 电视唤醒、`wecom_report_trigger.py`、`bemfa_send.py` |
