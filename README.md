@@ -250,11 +250,15 @@ cp -r custom_components/map_tiles /path/to/config/custom_components/
 企微推送改为**等上游出当天简报再推**，而不是固定 07:30 推昨天的内容：
 
 - `每日简报`（rest）轮询从 6 小时缩到 15 分钟，上游一更新就能感知
-- 自动化触发器：`sensor.mei_ri_jian_bao` 状态变化 + 07:30 兜底
-- 两个条件：简报日期 = 今天、`input_datetime.brief_last_push` 不是今天 → 同一天只推一次
-- 推送完成后把当天日期写回 `input_datetime.brief_last_push`
+- 自动化触发器：`sensor.mei_ri_jian_bao` 状态变化、`news` 属性变化、07:30 兜底
+- 两个条件：简报日期 = 今天、**内容指纹**（`日期|首条新闻前 40 字`）与 `input_text.brief_last_fingerprint` 不同
+- 推送完成后把指纹写回 `input_text.brief_last_fingerprint`，同时更新 `input_datetime.brief_last_push`
 
-上游一般凌晨 0~8 点发布，今天（11-18）到 11 点仍未更新，所以卡片里还是 17 号的内容。
+> 为什么不用"当天是否推过"去重：上游会先发布一个日期是今天、正文还是昨天的占位版本（11-18 上午就是这种情况），
+> 那种版本一旦推出去就会把"今日已推"的标记用掉，等真正的今日内容到位反而不再推。
+> 改成内容指纹后，同一天内容刷新会补推一次。
+
+上游一般凌晨 0~8 点发布；没出之前 07:30 兜底也不会推（日期条件会拦住），所以不会出现"早上收到昨天的简报"。
 
 关键点：
 

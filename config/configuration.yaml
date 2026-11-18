@@ -32,6 +32,12 @@ input_datetime:
     has_date: true
     has_time: false
 
+# 简报推送去重：记录已推送内容的指纹（日期+首条+条数），内容变了会补推
+input_text:
+  brief_last_fingerprint:
+    name: 简报最后推送指纹
+    max: 255
+
 # 小爱同学(巴法云 tv001) -> 电视 adb 控制
 shell_command:
   tv_wake: "python /config/scripts/wake_tv.py wake"
